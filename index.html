@@ -1,0 +1,1602 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="규롱섬">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#FFFCF6">
+<link rel="apple-touch-icon" href="icon.png">
+<link rel="icon" href="icon.png">
+<title>듀오 아일랜드</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jua&family=Gowun+Dodum&family=Gaegu:wght@400;700&display=swap" rel="stylesheet">
+<style>
+/* Layout: one phone-width app column — island stage on top, scrolling content, tab bar fixed at the bottom. */
+:root{
+  --sea:#1F6F86;
+  --lagoon:#A6E1D8;
+  --sand:#F6EEDD;
+  --paper:#FFFCF6;
+  --ink:#203038;
+  --muted:#6A7A80;
+  --hibiscus:#DD4F75;
+  --leaf:#3F8F5A;
+  --sun:#F2B544;
+  --line:#E8DFCC;
+  --postit:#FFE89A;
+  --display:"Jua","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --body:"Gowun Dodum","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+  --hand:"Gaegu","Gowun Dodum",cursive;
+  color-scheme:light;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html,body{height:100%;margin:0;overflow:hidden;overscroll-behavior:none}
+body{background:var(--sand);color:var(--ink);font-family:var(--body);font-size:15px;line-height:1.5;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-text-size-adjust:100%;position:fixed;inset:0}
+main{overscroll-behavior:contain;-webkit-overflow-scrolling:touch}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer}
+:focus-visible{outline:2px solid var(--sea);outline-offset:2px}
+.app{display:flex;flex-direction:column;height:100%;max-width:520px;margin:0 auto;background:var(--paper);box-shadow:0 0 0 1px var(--line)}
+header.top{display:flex;align-items:center;gap:10px;padding:12px 16px 10px;border-bottom:1px solid var(--line);background:var(--paper)}
+header.top h1{font-family:var(--display);font-weight:400;font-size:22px;margin:0;letter-spacing:-.2px;flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dday{font-family:var(--display);font-size:15px;color:var(--hibiscus);background:#FCE6EC;border-radius:999px;padding:3px 10px;white-space:nowrap}
+.iconbtn{border:0;background:transparent;width:36px;height:36px;border-radius:10px;display:grid;place-items:center;color:var(--muted)}
+.iconbtn:hover{background:var(--sand)}
+main{flex:1;overflow-y:auto;overflow-x:hidden;padding:14px 16px 28px}
+nav.tabs{display:grid;grid-template-columns:repeat(4,1fr);border-top:1px solid var(--line);background:var(--paper)}
+nav.tabs a{display:flex;flex-direction:column;align-items:center;gap:2px;padding:9px 0 11px;text-decoration:none;color:var(--muted);font-size:12px}
+nav.tabs a svg{width:24px;height:24px}
+nav.tabs a[aria-current="page"]{color:var(--sea)}
+nav.tabs a[aria-current="page"] span{font-weight:700}
+.banner{background:#E4F4F1;color:var(--sea);border-radius:12px;padding:8px 12px;font-size:13px;margin-bottom:12px}
+.banner.warn{background:#FFF1D6;color:#8A5A00}
+.stack{display:flex;flex-direction:column;gap:12px}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:14px}
+.card h3,.sec-title{font-family:var(--display);font-weight:400;font-size:17px;margin:0 0 8px}
+.sec-title{display:flex;justify-content:space-between;align-items:baseline;margin-top:6px}
+.sec-title small{font-family:var(--body);font-size:12px;color:var(--muted)}
+.muted{color:var(--muted);font-size:13px}
+.btn{border:0;border-radius:12px;padding:11px 14px;background:var(--sea);color:#fff;font-weight:700;display:inline-flex;align-items:center;justify-content:center;gap:6px}
+.btn.alt{background:var(--hibiscus)}
+.btn.ghost{background:var(--sand);color:var(--ink)}
+.btn.small{padding:7px 11px;font-size:13px;border-radius:10px}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn.block{width:100%}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.who{display:inline-flex;align-items:center;gap:5px;font-size:12px;font-weight:700;padding:2px 8px;border-radius:999px;color:#fff;white-space:nowrap}
+.who.a{background:var(--sea)} .who.b{background:var(--hibiscus)}
+.link{border:0;background:none;color:var(--muted);font-size:12px;padding:2px 4px;text-decoration:underline}
+.link.danger{color:#B23A48}
+
+/* island */
+.stage{position:relative;border-radius:20px;overflow:hidden;border:1px solid var(--line);background:#D6F0EE}
+.stage canvas{display:block;width:100%;height:320px}
+.lvbox{position:absolute;left:12px;top:12px;background:rgba(255,252,246,.92);border-radius:14px;padding:8px 12px;min-width:150px}
+.lvbox b{font-family:var(--display);font-weight:400;font-size:20px;color:var(--sea)}
+.lvbox .bar{height:6px;border-radius:6px;background:var(--line);margin-top:5px;overflow:hidden}
+.lvbox .bar i{display:block;height:100%;background:linear-gradient(90deg,var(--leaf),var(--sun))}
+.lvbox .muted{font-size:11px}
+.gift{display:flex;gap:14px;align-items:center;background:#FFF5E1;border:1px dashed var(--sun);border-radius:16px;padding:14px;width:100%;text-align:left}
+.gift .box{width:52px;height:52px;flex:none}
+.gift b{font-family:var(--display);font-weight:400;font-size:17px;display:block}
+.gift.opening .box{animation:pop .6s ease}
+@keyframes pop{0%{transform:scale(1)}40%{transform:scale(1.25) rotate(-8deg)}100%{transform:scale(1)}}
+.note{font-family:var(--hand);font-size:19px;line-height:1.35;background:var(--postit);padding:10px 12px 12px;border-radius:3px;box-shadow:0 2px 0 rgba(0,0,0,.06);transform:rotate(var(--r,-1deg));position:relative}
+.note .meta{font-family:var(--body);font-size:11px;color:#7A6A2A;margin-top:4px;display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.note.pink{background:#FFD9E2}
+.note.mint{background:#D3F1EA}
+.tag{font-size:11px;border-radius:6px;padding:1px 6px;background:rgba(0,0,0,.07)}
+.unlock{display:flex;gap:10px;align-items:center;font-size:13px}
+.unlock{gap:12px}
+.unlock .dot{width:48px;height:48px;border-radius:14px;display:grid;place-items:center;background:var(--sand);flex:none;position:relative}
+.unlock .dot svg{width:38px;height:38px;filter:grayscale(1);opacity:.4}
+.unlock.done .dot{background:#E3F4EC}
+.unlock.done .dot svg{filter:none;opacity:1}
+.unlock .ok{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;background:var(--leaf);color:#fff;font-size:11px;font-style:normal;display:grid;place-items:center;border:2px solid #fff}
+
+/* calendar */
+.calhead{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.calhead h2{font-family:var(--display);font-weight:400;font-size:20px;margin:0}
+.cal{display:grid;grid-template-columns:repeat(7,1fr);gap:3px}
+.cal .wd{text-align:center;font-size:11px;color:var(--muted);padding:2px 0}
+.cal .wd:first-child{color:var(--hibiscus)}
+.day{border:0;background:#fff;border-radius:10px;min-height:58px;padding:4px 3px 3px;display:flex;flex-direction:column;align-items:center;gap:2px;position:relative;box-shadow:inset 0 0 0 1px var(--line)}
+.day.out{opacity:.35}
+.day .n{font-size:12px;font-variant-numeric:tabular-nums;line-height:18px;width:20px;height:20px;border-radius:50%}
+.day.today .n{background:var(--ink);color:#fff}
+.day.sel{box-shadow:inset 0 0 0 2px var(--sea);background:#F1FAF8}
+.day .ev{width:88%;height:4px;border-radius:3px}
+.day .ev.a{background:var(--sea)} .day .ev.b{background:var(--hibiscus)}
+.day .marks{display:flex;gap:2px;align-items:center;justify-content:center;flex-wrap:wrap;margin-top:auto}
+.mk{width:6px;height:6px;border-radius:50%}
+.mk.a{background:var(--sea)} .mk.b{background:var(--hibiscus)}
+.mk.photo{border-radius:1px;background:var(--sun)}
+.mk.heart{width:auto;height:auto;background:none;color:var(--hibiscus);font-size:9px;line-height:1}
+.dayhead{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}
+.dayhead h3{margin:0}
+.polas{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:14px;padding:6px 2px}
+.pola{background:#fff;padding:8px 8px 10px;box-shadow:0 3px 10px rgba(32,48,56,.14);transform:rotate(var(--r,0deg));border-radius:2px}
+.pola .ph{aspect-ratio:1;background:var(--sand);overflow:hidden}
+.pola img{width:100%;height:100%;object-fit:cover;display:block}
+.pola p{font-family:var(--hand);font-size:17px;margin:6px 2px 0;line-height:1.25}
+.line{display:flex;gap:8px;align-items:flex-start;padding:8px 0;border-top:1px solid var(--line)}
+.line:first-child{border-top:0}
+.line p{margin:0;flex:1}
+.evcard{border-radius:14px;border:1px solid var(--line);padding:10px 12px;border-left:6px solid var(--sea);background:#fff}
+.evcard.b{border-left-color:var(--hibiscus)}
+.evcard .t{font-weight:700}
+.evnotes{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.evnotes .note{font-size:17px;max-width:100%}
+
+/* tasty */
+.seg{display:grid;grid-template-columns:1fr 1fr;background:var(--sand);border-radius:14px;padding:4px;gap:4px}
+.seg button{border:0;background:transparent;border-radius:10px;padding:9px 6px;font-family:var(--display);font-size:15px;color:var(--muted)}
+.seg button[aria-pressed="true"]{background:#fff;color:var(--ink);box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.chips{display:flex;gap:6px;overflow-x:auto;padding-bottom:2px;scrollbar-width:none}
+.chip{border:1px solid var(--line);background:#fff;border-radius:999px;padding:5px 12px;font-size:13px;white-space:nowrap}
+.chip[aria-pressed="true"]{background:var(--ink);color:#fff;border-color:var(--ink)}
+.place{display:flex;gap:12px;align-items:flex-start}
+.place .cat{width:44px;height:44px;border-radius:12px;display:grid;place-items:center;font-family:var(--display);font-size:13px;flex:none;color:var(--ink)}
+.place .body{flex:1;min-width:0}
+.place .name{font-weight:700;font-size:16px}
+.stars{color:var(--sun);letter-spacing:1px;font-size:14px}
+.stars .off{color:var(--line)}
+.review{font-family:var(--hand);font-size:18px;line-height:1.3;margin:2px 0}
+.stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:6px}
+.stamp{aspect-ratio:1;border-radius:50%;border:2px dashed var(--line);display:grid;place-items:center;font-family:var(--display);font-size:12px;color:var(--muted)}
+.stamp.on{border:2px solid var(--hibiscus);color:var(--hibiscus);background:#FFF0F4;transform:rotate(-8deg)}
+.roulette-btn{display:flex;align-items:center;justify-content:space-between;width:100%;border:0;border-radius:16px;padding:16px;background:var(--ink);color:#fff;text-align:left}
+.roulette-btn b{font-family:var(--display);font-weight:400;font-size:20px;display:block}
+.fab{position:sticky;bottom:6px;margin-left:auto;display:flex;justify-content:flex-end;pointer-events:none}
+.fab .btn{pointer-events:auto;box-shadow:0 6px 16px rgba(31,111,134,.3);border-radius:999px;padding:12px 18px}
+
+/* sheet */
+.scrim{position:fixed;inset:0;background:rgba(20,32,38,.42);display:flex;align-items:flex-end;justify-content:center;z-index:20}
+.sheet{background:var(--paper);width:100%;max-width:520px;max-height:88%;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px 22px}
+.sheet h3{font-family:var(--display);font-weight:400;font-size:20px;margin:0 0 12px}
+.field{display:flex;flex-direction:column;gap:5px;margin-bottom:12px}
+.field>span{font-size:13px;color:var(--muted)}
+.field input,.field textarea,.field select{border:1px solid var(--line);background:#fff;border-radius:12px;padding:10px 12px;width:100%;font-size:16px}
+.field textarea{min-height:84px;resize:vertical}
+.opts{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1px solid var(--line);background:#fff;border-radius:10px;padding:8px 12px;font-size:14px}
+.opt[aria-pressed="true"]{border-color:var(--sea);background:#E8F6F3;color:var(--sea);font-weight:700}
+.starin button{border:0;background:none;font-size:30px;line-height:1;color:var(--line);padding:0 2px}
+.starin button.on{color:var(--sun)}
+.preview{max-width:140px;border-radius:10px;display:block;margin-top:6px}
+.sheet .acts{display:flex;gap:8px;margin-top:6px}
+.sheet .acts .btn{flex:1}
+.wheel{height:120px;border-radius:18px;background:var(--sand);display:grid;place-items:center;text-align:center;padding:10px;margin-bottom:14px;overflow:hidden}
+.wheel b{font-family:var(--display);font-weight:400;font-size:30px;line-height:1.2}
+.wheel.done{background:#FFF0F4}
+.toast{position:fixed;left:50%;bottom:84px;transform:translateX(-50%);background:var(--ink);color:#fff;padding:10px 16px;border-radius:12px;font-size:14px;z-index:30;max-width:90%;text-align:center}
+.empty{text-align:center;color:var(--muted);font-size:14px;padding:18px 8px}
+.btn.poo{background:#7A5230}
+.fartcard{display:flex;gap:12px;align-items:center;background:#F3E6D6;border:1px solid #D9BFA0;border-radius:16px;padding:12px 14px}
+.fartcard b{font-family:var(--display);font-weight:400;font-size:17px;display:block}
+.mk.star{width:auto;height:auto;background:none;color:#D9A030;font-size:9px;line-height:1}
+.annv{display:flex;align-items:center;gap:8px;background:#FFF5E1;border:1px solid #F2D48A;border-radius:12px;padding:8px 12px;font-weight:700;color:#8A5A00}
+.nextannv{display:flex;justify-content:space-between;align-items:center;background:#fff;border:1px solid var(--line);border-radius:14px;padding:10px 14px}
+.nextannv b{font-family:var(--display);font-weight:400;font-size:18px;color:var(--hibiscus)}
+.fp-map{position:relative;border-radius:18px;overflow:hidden;border:1px solid var(--line);background:#CFEAF0}
+.fp-map svg{display:block;width:100%;height:auto;touch-action:none}
+.fp-map path.rg{stroke:#fff;stroke-width:.6;vector-effect:non-scaling-stroke;cursor:pointer}
+.fp-map path.rg.sel{stroke:var(--hibiscus);stroke-width:2}
+.fp-map .hint{position:absolute;right:8px;bottom:8px;background:rgba(255,252,246,.9);border-radius:8px;padding:2px 8px;font-size:11px;color:var(--muted)}
+.fp-zoom{position:absolute;left:8px;bottom:8px;display:flex;gap:4px}
+.fp-zoom button{width:32px;height:32px;border-radius:10px;border:0;background:rgba(255,252,246,.95);font-size:18px;color:var(--ink)}
+.lrow{display:flex;justify-content:space-between;align-items:center;width:100%;border:0;border-bottom:1px solid var(--line);background:none;padding:11px 2px;text-align:left;font-size:15px}
+.lrow:last-child{border-bottom:0}
+main.full{padding:0;overflow:hidden;position:relative}
+.fp-full{position:absolute;inset:0;background:#CFEAF0;overflow:hidden}
+.fp-full svg{display:block;touch-action:none}
+.fp-full path.rg{stroke:#fff;stroke-width:.7;vector-effect:non-scaling-stroke;cursor:pointer}
+.fp-full path.rg.pic{stroke:#fff;stroke-width:2}
+.fp-top{position:absolute;top:10px;left:50%;transform:translateX(-50%);width:min(240px,70%)}
+.fp-top .seg{background:rgba(255,252,246,.94);box-shadow:0 2px 8px rgba(32,48,56,.12)}
+.fp-bottom{position:absolute;left:10px;right:10px;bottom:12px;display:flex;justify-content:space-between;align-items:flex-end;pointer-events:none}
+.fp-bottom>*{pointer-events:auto}
+.fp-pill{border:0;background:rgba(255,252,246,.95);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;color:var(--ink);box-shadow:0 2px 8px rgba(32,48,56,.12)}
+.fp-full .fp-zoom{position:static;display:flex;flex-direction:column;gap:6px}
+.fp-full .fp-zoom button{width:38px;height:38px;border-radius:12px;border:0;background:rgba(255,252,246,.95);font-size:20px;color:var(--ink);box-shadow:0 2px 8px rgba(32,48,56,.12)}
+.stackscrim{position:fixed;inset:0;z-index:15;background:rgba(20,28,32,.72);display:flex;align-items:center;justify-content:center;padding:16px}
+.stackbox{width:100%;max-width:420px;display:flex;flex-direction:column;gap:10px;color:#fff}
+.stk-head{display:flex;justify-content:space-between;align-items:center}
+.stk-head h3{margin:0;font-family:var(--display);font-weight:400;font-size:24px;color:#fff}
+.stk-x{border:0;background:rgba(255,255,255,.18);color:#fff;width:38px;height:38px;border-radius:50%;font-size:16px}
+.stk-chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.schip{border:0;border-radius:999px;padding:6px 12px;font-size:13px;white-space:nowrap;background:rgba(255,255,255,.2);color:#fff}
+.schip[aria-pressed="true"]{background:#fff;color:var(--ink);font-weight:700}
+.schip.add{background:transparent;border:1px dashed rgba(255,255,255,.6)}
+.deck{display:grid;place-items:center;min-height:200px;padding:6px 0}
+.pcard{grid-area:1/1;width:min(80vw,330px);max-height:64vh;background:#fff;padding:10px 10px 12px;border-radius:3px;box-shadow:0 10px 26px rgba(0,0,0,.28);transform:rotate(var(--r));touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.pcard.back{transform:translate(calc(var(--d) * 7px),calc(var(--d) * 6px)) rotate(var(--r))}
+.pcard.top{cursor:grab}
+.pcard .ph{aspect-ratio:4/5;max-height:48vh;width:100%;background:var(--sand);overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:14px}
+.pcard img{width:100%;height:100%;object-fit:cover;display:block;pointer-events:none;-webkit-user-drag:none}
+.pcard .cap{font-family:var(--hand);font-size:21px;line-height:1.25;color:var(--ink);margin:8px 4px 0;min-height:26px;white-space:pre-wrap}
+.pcard .cap.none{color:var(--muted)}
+.pcard .pmeta{display:flex;gap:6px;align-items:center;margin:4px 4px 0;color:var(--muted)}
+.stk-count{text-align:center;font-size:13px;opacity:.85;min-height:18px}
+.stk-acts{display:flex;gap:8px;justify-content:center;flex-wrap:wrap}
+.sbtn{border:0;background:#fff;color:var(--ink);border-radius:12px;padding:9px 13px;font-size:14px;font-weight:700;cursor:pointer}
+.sbtn:disabled{opacity:.5}
+.folders{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.folder{border:0;background:#fff;border-radius:14px;padding:8px 8px 10px;text-align:left;box-shadow:0 2px 8px rgba(32,48,56,.1);transform:rotate(var(--r,0deg))}
+.folder .ph{aspect-ratio:1;background:var(--sand);border-radius:6px;overflow:hidden;display:grid;place-items:center;color:var(--muted);font-size:12px}
+.folder img{width:100%;height:100%;object-fit:cover;display:block}
+.folder b{display:block;margin-top:6px;font-family:var(--display);font-weight:400;font-size:16px}
+.carousel{display:flex;gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 9% 14px;margin:0 -16px;scrollbar-width:none;overscroll-behavior-x:contain}
+.carousel::-webkit-scrollbar{display:none}
+.slide{flex:0 0 82%;scroll-snap-align:center}
+.slide .pola{transform:rotate(var(--r,0deg))}
+.slide .cap{font-family:var(--hand);font-size:20px;line-height:1.3;margin:8px 4px 0;min-height:26px;white-space:pre-wrap}
+.slide .cap.none{color:var(--muted)}
+.slide .acts2{display:flex;gap:6px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.counter{text-align:center;color:var(--muted);font-size:13px}
+.coverbadge{display:inline-block;font-size:11px;background:var(--hibiscus);color:#fff;border-radius:6px;padding:1px 6px;margin-left:6px;vertical-align:middle}
+.chips.wrap{flex-wrap:wrap}
+.onboard h2{font-family:var(--display);font-weight:400;font-size:24px;margin:4px 0}
+@media (prefers-reduced-motion: reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<div class="app">
+  <header class="top">
+    <h1 id="isleName">듀오 아일랜드</h1>
+    <span class="dday" id="dday" hidden></span>
+    <button class="iconbtn" id="settingsBtn" aria-label="섬 설정" hidden>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+    </button>
+  </header>
+  <main id="main"></main>
+  <nav class="tabs" id="tabs">
+    <a href="#island" data-tab="island"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M2 19c2 0 2-1.5 4-1.5S8 19 10 19s2-1.5 4-1.5 2 1.5 4 1.5 2-1.5 4-1.5"/><path d="M12 16V8"/><path d="M12 8c-1.5-2.5-4.5-3-6.5-2M12 8c1.5-2.5 4.5-3 6.5-2M12 8c-2 0-4 1.5-4.5 3.5M12 8c2 0 4 1.5 4.5 3.5"/></svg><span>아일랜드</span></a>
+    <a href="#calendar" data-tab="calendar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg><span>캘린더</span></a>
+    <a href="#footprints" data-tab="footprints"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M8 3c2 0 3 2.5 3 5s-1 4-3 4-3-1.5-3-4 1-5 3-5zM6 14.5h4.5l-.5 3a2 2 0 0 1-3.6 0z"/><path d="M16 7c2 0 3 2.5 3 5s-1 4-3 4-3-1.5-3-4 1-5 3-5zM14 18.5h4.5l-.5 2a2 2 0 0 1-3.6 0z"/></svg><span>발자국</span></a>
+    <a href="#tasty" data-tab="tasty"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M7 3v8a2 2 0 0 0 2 2v8M5 3v5M9 3v5M17 3c-2 1-3 4-3 7h3v11"/></svg><span>테이스티</span></a>
+  </nav>
+</div>
+<div id="stacklayer"></div>
+<div id="layer"></div>
+
+<script>
+(() => {
+'use strict';
+/* ---------- helpers ---------- */
+const $ = (s, el = document) => el.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const pad = n => String(n).padStart(2, '0');
+const ymd = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const todayStr = () => ymd(new Date());
+const parseYmd = s => { const [y,m,d] = s.split('-').map(Number); return new Date(y, m-1, d); };
+const dotDate = s => s ? s.replaceAll('-', '.') : '';
+const WD = ['일','월','화','수','목','금','토'];
+const CATS = ['한식','일식','중식','양식','카페','기타'];
+const CAT_COLOR = {'한식':'#FBE3C8','일식':'#E2EEF9','중식':'#FCD9D3','양식':'#E7F1D8','카페':'#EFE3D6','기타':'#ECE8F3'};
+const LEVELS = [0, 30, 80, 150, 250, 380, 550, 770, 1050, 1400];
+const MAX_TEXT = 140;
+const DOG_MS = 3 * 864e5;
+const FART_MS = 864e5;
+const lastFart = id => Math.max(0, ...S.farts.filter(f => f.from === id).map(f => f.createdAt || 0));
+const fartActive = id => !!id && Date.now() - lastFart(id) < FART_MS;
+const fartLeftH = id => Math.max(1, Math.ceil((lastFart(id) + FART_MS - Date.now()) / 36e5));
+const genderOf = (id, i) => (S.couple?.gender?.[id]) || (i === 1 ? 'm' : 'f');
+function moodOf(id) {
+  const other = members().find(x => x !== id);
+  if (other && fartActive(other)) return 'sick';
+  if (fartActive(id)) return 'hehe';
+  return 'normal';
+}
+/* anniversaries */
+const daysBetween = (a, b) => Math.round((parseYmd(b) - parseYmd(a)) / 864e5);
+function annivsOn(ds) {
+  const out = []; const sn = S.couple?.since; const [y, m, d] = ds.split('-');
+  if (sn) {
+    const n = daysBetween(sn, ds) + 1;
+    if (n > 0 && n % 100 === 0) out.push(`${n}일`);
+    const [sy, sm, sd] = sn.split('-');
+    if (m === sm && d === sd && +y > +sy) out.push(`${y - sy}주년`);
+  }
+  (S.annivs || []).forEach(a => {
+    if (!a.date) return; const [ay, am, ad] = a.date.split('-');
+    if (a.yearly ? (m === am && d === ad && +y >= +ay) : a.date === ds) out.push(a.name);
+  });
+  return out;
+}
+function nextAnniv() {
+  const t = new Date();
+  for (let i = 0; i <= 400; i++) { const dd = new Date(t); dd.setDate(t.getDate() + i); const ds = ymd(dd); const a = annivsOn(ds); if (a.length) return { ds, names: a, dd: i }; }
+  return null;
+}
+const ICONS = {
+  luna: `<svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="9" cy="19" rx="5" ry="9" fill="#B97E37" transform="rotate(18 9 19)"/><ellipse cx="31" cy="19" rx="5" ry="9" fill="#B97E37" transform="rotate(-18 31 19)"/><circle cx="20" cy="19" r="12" fill="#DDA45A"/><ellipse cx="20" cy="25" rx="7" ry="5" fill="#F0C98E"/><circle cx="15.5" cy="17" r="1.6" fill="#2B2420"/><circle cx="24.5" cy="17" r="1.6" fill="#2B2420"/><ellipse cx="20" cy="22.5" rx="2.3" ry="1.7" fill="#2B2420"/><path d="M18 27 q2 2 4 0" stroke="#2B2420" stroke-width="1.1" fill="none" stroke-linecap="round"/><path d="M19 28 q1 4 2 0" fill="#E2557A"/></svg>`,
+  sin: `<svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="9" cy="22" rx="5.5" ry="9" fill="#F1EEE7" stroke="#DCD7CC"/><ellipse cx="31" cy="22" rx="5.5" ry="9" fill="#F1EEE7" stroke="#DCD7CC"/><circle cx="20" cy="20" r="11.5" fill="#FBFAF6" stroke="#DCD7CC"/><circle cx="13" cy="11" r="4" fill="#FBFAF6"/><circle cx="20" cy="9" r="4.5" fill="#FBFAF6"/><circle cx="27" cy="11" r="4" fill="#FBFAF6"/><circle cx="15.5" cy="19" r="1.8" fill="#2B2420"/><circle cx="24.5" cy="19" r="1.8" fill="#2B2420"/><ellipse cx="20" cy="24" rx="2" ry="1.5" fill="#2B2420"/><path d="M20 8 l-5 -3 v6 z M20 8 l5 -3 v6 z" fill="#FF8FAB"/><circle cx="20" cy="8" r="1.6" fill="#E2557A"/></svg>`,
+  hut: `<svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="20" cy="33" rx="15" ry="3" fill="#5FA86B"/><rect x="10" y="19" width="20" height="14" fill="#C99A63"/><path d="M6 20 L20 7 L34 20 Z" fill="#9C6B3A"/><rect x="17" y="24" width="6" height="9" fill="#5A3C22"/><rect x="24" y="22" width="4" height="4" fill="#FFE07A"/></svg>`,
+  flag: `<svg viewBox="0 0 40 40" aria-hidden="true"><ellipse cx="16" cy="34" rx="10" ry="2.5" fill="#5FA86B"/><rect x="14" y="5" width="2.5" height="29" fill="#5A3C22"/><path d="M16.5 6 Q26 8 34 11 L16.5 19 Z" fill="#DD4F75"/><path d="M22 10.5 l1 2.2 2.4.2 -1.8 1.6 .6 2.3 -2.2-1.3 -2.2 1.3 .6-2.3 -1.8-1.6 2.4-.2z" fill="#fff"/></svg>`,
+  boat: `<svg viewBox="0 0 40 40" aria-hidden="true"><path d="M3 33 q4-2 8 0 t8 0 t8 0 t8 0" stroke="#7CCCC6" stroke-width="2" fill="none"/><path d="M7 26 H33 L28 32 H12 Z" fill="#8B5A3C"/><rect x="19" y="6" width="2" height="20" fill="#5A3C22"/><path d="M21 7 L31 24 H21 Z" fill="#FFFCF6" stroke="#DCD7CC"/><path d="M19 10 L11 24 H19 Z" fill="#F2B544"/></svg>`,
+  market: `<svg viewBox="0 0 40 40" aria-hidden="true"><rect x="8" y="14" width="2.5" height="20" fill="#8B6A43"/><rect x="29.5" y="14" width="2.5" height="20" fill="#8B6A43"/><rect x="7" y="25" width="26" height="8" fill="#C99A63"/><path d="M5 10 H35 V16 H5 Z" fill="#DD4F75"/><path d="M11 10 h6 v6 h-6z M23 10 h6 v6 h-6z" fill="#FFFCF6"/><path d="M5 5 Q20 11 35 5" stroke="#5A3C22" fill="none"/><circle cx="11" cy="7" r="2" fill="#F2B544"/><circle cx="20" cy="8.5" r="2" fill="#F2B544"/><circle cx="29" cy="7" r="2" fill="#F2B544"/></svg>`
+};
+const rot = i => ((i * 37) % 7 - 3) * 0.7;
+
+/* ---------- state ---------- */
+const now0 = new Date();
+const S = {
+  tab: 'island', me: null, demo: false, ready: false, coupleLoaded: false, offline: false,
+  couple: null, records: [], praises: [], events: [], places: [], farts: [], trips: [], tripPhotos: [], covers: [], annivs: [], fp: { scope: 'world', sel: null },
+  cal: { y: now0.getFullYear(), m: now0.getMonth() }, sel: todayStr(),
+  tastyTab: 'visited', cat: '전체', photos: {}, readonly: false, phase: 'loading', iid: null, email: ''
+};
+let B = null; // backend
+
+/* ---------- backends ---------- */
+function deepMerge(t, p) {
+  for (const k in p) {
+    if (p[k] && typeof p[k] === 'object' && !Array.isArray(p[k]) && t[k] && typeof t[k] === 'object') deepMerge(t[k], p[k]);
+    else t[k] = p[k];
+  }
+}
+function fbBackend(F, db, iid) {
+  const col = c => F.collection(db, 'islands', iid, c);
+  const ref = (c, id) => c === 'couple' ? F.doc(db, 'islands', iid) : F.doc(db, 'islands', iid, c, id);
+  const flat = p => { const o = {}; for (const k in p) { const v = p[k]; if (v && typeof v === 'object' && !Array.isArray(v)) { for (const sk in v) o[`${k}.${sk}`] = v[sk]; } else o[k] = v; } return o; };
+  return {
+    listen(c, cb, err) { return F.onSnapshot(col(c), s => cb(s.docs.map(d => ({ id: d.id, ...d.data() })), { fromCache: s.metadata.fromCache }), err); },
+    listenDoc(c, id, cb, err) { return F.onSnapshot(ref(c, id), s => cb(s.exists() ? { id: s.id, ...s.data() } : null, { fromCache: s.metadata.fromCache }), err); },
+    async add(c, o) { const r = await F.addDoc(col(c), o); return r.id; },
+    set: (c, id, o) => F.setDoc(ref(c, id), o),
+    update: (c, id, p) => F.updateDoc(ref(c, id), flat(p)),
+    remove: (c, id) => F.deleteDoc(ref(c, id)),
+    async get(c, id) { const s = await F.getDoc(ref(c, id)); return s.exists() ? { id: s.id, ...s.data() } : null; }
+  };
+}
+
+/* ---------- people ---------- */
+const members = () => S.couple?.members || [];
+const partnerId = () => members().find(x => x !== S.me) || null;
+const isMember = () => members().includes(S.me);
+const side = id => (members().indexOf(id) === 1 ? 'b' : 'a');
+const nick = id => (S.couple?.nick?.[id]) || (id === S.me ? '나' : '상대');
+const whoChip = id => `<span class="who ${side(id)}">${esc(nick(id))}</span>`;
+const canWrite = () => isMember() && !S.readonly;
+
+/* ---------- praise visibility ---------- */
+const revealed = p => Date.now() >= (p.revealAt || 0);
+const visiblePraise = p => p.from === S.me || (p.to === S.me && revealed(p) && p.openedAt);
+const gifts = () => S.praises.filter(p => p.to === S.me && revealed(p) && !p.openedAt).sort((a, b) => a.revealAt - b.revealAt);
+const tonight10 = () => { const d = new Date(); d.setHours(22, 0, 0, 0); if (Date.now() >= d.getTime()) d.setDate(d.getDate() + 1); return d.getTime(); };
+const timeLabel = ms => { const d = new Date(ms); return `${d.getMonth()+1}/${d.getDate()} ${pad(d.getHours())}:${pad(d.getMinutes())}`; };
+
+/* ---------- island stats ---------- */
+function stats() {
+  const byDate = {};
+  S.records.forEach(r => (byDate[r.date] ||= new Set()).add(r.author));
+  const active = Object.keys(byDate).length;
+  const both = Object.values(byDate).filter(s => s.size >= 2).length;
+  const praiseN = S.praises.length;
+  const visited = S.places.filter(p => p.status === 'visited').length;
+  const xp = active * 10 + both * 15 + praiseN * 5 + visited * 8;
+  let lv = 1;
+  for (let i = 0; i < LEVELS.length; i++) if (xp >= LEVELS[i]) lv = i + 1;
+  const cur = LEVELS[lv - 1], next = LEVELS[lv] ?? null;
+  const pct = next ? Math.round((xp - cur) / (next - cur) * 100) : 100;
+  const last = {};
+  S.praises.forEach(p => { if (revealed(p)) last[p.from] = Math.max(last[p.from] || 0, p.revealAt || p.createdAt || 0); });
+  const [m0, m1] = members();
+  const retriever = !!m0 && Date.now() - (last[m0] || 0) < DOG_MS;
+  const maltese = !!m1 && Date.now() - (last[m1] || 0) < DOG_MS;
+  const people = members().slice(0, 2).map((id, i) => ({ id, g: genderOf(id, i), mood: moodOf(id) }));
+  return { active, both, praiseN, visited, xp, lv, next, pct, retriever, maltese, people, fart: people.some(p => fartActive(p.id)) };
+}
+
+/* ---------- toast & sheet ---------- */
+let toastT;
+function toast(msg) {
+  let el = $('.toast'); if (!el) { el = document.createElement('div'); el.className = 'toast'; el.setAttribute('role', 'status'); document.body.appendChild(el); }
+  el.textContent = msg; clearTimeout(toastT); toastT = setTimeout(() => el.remove(), 2600);
+}
+function errMsg(e) {
+  const c = e?.code;
+  if (c === 'permission-denied') return '저장할 권한이 없어요. 다시 로그인해 주세요.';
+  if (c === 'resource-exhausted') return '오늘 사용할 수 있는 양을 넘었어요. 내일 다시 시도해 주세요.';
+  if (c === 'invalid-argument') return '사진이 너무 커요. 다른 사진으로 시도해 주세요.';
+  return '저장하지 못했어요. 잠시 후 다시 시도해 주세요.';
+}
+async function save(fn, ok) {
+  try { const r = await fn(); if (ok) toast(ok); return r; }
+  catch (e) {
+    if (e?.code === 'unavailable') { await new Promise(r => setTimeout(r, 600 + Math.random() * 600)); try { const r = await fn(); if (ok) toast(ok); return r; } catch (e2) { toast(errMsg(e2)); throw e2; } }
+    toast(errMsg(e)); throw e;
+  }
+}
+function openSheet(html, mount) {
+  const layer = $('#layer');
+  layer.innerHTML = `<div class="scrim" id="scrim"><div class="sheet" role="dialog" aria-modal="true">${html}</div></div>`;
+  $('#scrim').addEventListener('click', e => { if (e.target.id === 'scrim') closeSheet(); });
+  const sh = $('.sheet', layer);
+  mount && mount(sh);
+  const f = sh.querySelector('input:not([type=file]),textarea'); f && setTimeout(() => f.focus(), 50);
+}
+function closeSheet() { $('#layer').innerHTML = ''; }
+document.addEventListener('keydown', e => { if (e.key !== 'Escape') return; if ($('#layer').innerHTML) closeSheet(); else if (S.stack) closeStack(); });
+function wireOpts(sh) {
+  sh.querySelectorAll('.opts').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('.opt'); if (!b) return;
+    g.querySelectorAll('.opt').forEach(x => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    g.dispatchEvent(new Event('change'));
+  }));
+}
+const optVal = (sh, id) => sh.querySelector(`#${id} .opt[aria-pressed="true"]`)?.dataset.v;
+function starInput(id, val = 0) {
+  return `<div class="starin" id="${id}" data-v="${val}">${[1,2,3,4,5].map(n => `<button type="button" data-n="${n}" class="${n <= val ? 'on' : ''}" aria-label="별 ${n}개">★</button>`).join('')}</div>`;
+}
+function wireStars(sh) {
+  sh.querySelectorAll('.starin').forEach(g => g.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b) return;
+    const n = +b.dataset.n; g.dataset.v = n;
+    g.querySelectorAll('button').forEach(x => x.classList.toggle('on', +x.dataset.n <= n));
+  }));
+}
+const starsHtml = n => `<span class="stars" aria-label="별점 ${n}점">${'★'.repeat(n)}<span class="off">${'★'.repeat(5 - n)}</span></span>`;
+
+/* ---------- photos ---------- */
+function compressImage(file) {
+  return new Promise((res, rej) => {
+    const url = URL.createObjectURL(file); const img = new Image();
+    img.onload = () => {
+      let max = 900, q = 0.8, out = '';
+      for (let i = 0; i < 7; i++) {
+        const sc = Math.min(1, max / Math.max(img.width, img.height));
+        const c = document.createElement('canvas'); c.width = Math.round(img.width * sc); c.height = Math.round(img.height * sc);
+        c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+        out = c.toDataURL('image/jpeg', q);
+        if (out.length < 200000) break;
+        max *= 0.8; q = Math.max(0.5, q - 0.07);
+      }
+      URL.revokeObjectURL(url); res(out);
+    };
+    img.onerror = () => { URL.revokeObjectURL(url); rej(new Error('이미지를 읽지 못했어요.')); };
+    img.src = url;
+  });
+}
+async function loadPhotos(root) {
+  const imgs = root.querySelectorAll('img[data-photo]');
+  for (const im of imgs) {
+    const id = im.dataset.photo;
+    if (S.photos[id]) { im.src = S.photos[id]; continue; }
+    try { const d = await B.get('photos', id); if (d?.data) { S.photos[id] = d.data; im.src = d.data; } } catch (e) {}
+  }
+}
+
+/* ---------- island canvas ---------- */
+function rng(seed) { return () => { seed |= 0; seed = seed + 0x6D2B79F5 | 0; let t = Math.imul(seed ^ seed >>> 15, 1 | seed); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+const reduceMotion = matchMedia('(prefers-reduced-motion: reduce)').matches;
+let raf = 0;
+function startIsland() {
+  cancelAnimationFrame(raf);
+  const cv = $('#isle'); if (!cv) return;
+  const st = stats();
+  const frame = t => {
+    if (!document.body.contains(cv)) return;
+    drawIsland(cv, t / 1000, st);
+    if (!reduceMotion) raf = requestAnimationFrame(frame);
+  };
+  raf = requestAnimationFrame(frame);
+}
+function drawIsland(cv, t, st) {
+  const dpr = Math.min(2, window.devicePixelRatio || 1);
+  const w = cv.clientWidth, h = cv.clientHeight;
+  if (cv.width !== Math.round(w * dpr)) { cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); }
+  const x = cv.getContext('2d'); x.setTransform(dpr, 0, 0, dpr, 0, 0);
+  const lv = st.lv;
+  // sky
+  let g = x.createLinearGradient(0, 0, 0, h * 0.6); g.addColorStop(0, '#BFE8EA'); g.addColorStop(1, '#F6F0E2');
+  x.fillStyle = g; x.fillRect(0, 0, w, h);
+  x.fillStyle = '#F2B544'; x.beginPath(); x.arc(w * 0.84, h * 0.2, 20, 0, 7); x.fill();
+  x.fillStyle = 'rgba(242,181,68,.18)'; x.beginPath(); x.arc(w * 0.84, h * 0.2, 32, 0, 7); x.fill();
+  // clouds
+  x.fillStyle = 'rgba(255,255,255,.85)';
+  [[0.18, 0.16, 1], [0.55, 0.1, 0.8]].forEach(([cx, cy, s], i) => {
+    const ox = ((t * 6 * (i + 1)) % (w + 120)) - 60;
+    const px = (cx * w + ox) % (w + 80) - 40, py = cy * h;
+    x.beginPath(); x.ellipse(px, py, 26 * s, 9 * s, 0, 0, 7); x.ellipse(px + 16 * s, py - 6 * s, 16 * s, 9 * s, 0, 0, 7); x.fill();
+  });
+  // sea
+  const seaY = h * 0.47;
+  g = x.createLinearGradient(0, seaY, 0, h); g.addColorStop(0, '#7CCCC6'); g.addColorStop(1, '#2A7F96');
+  x.fillStyle = g; x.fillRect(0, seaY, w, h - seaY);
+  const cx = w / 2, cy = h * 0.67;
+  const rx = Math.min(w * 0.47, w * (0.24 + 0.03 * (lv - 1))), ry = rx * 0.32;
+  // shallow ring
+  x.fillStyle = 'rgba(190,240,230,.75)'; x.beginPath(); x.ellipse(cx, cy + 4, rx * 1.18, ry * 1.35, 0, 0, 7); x.fill();
+  // waves
+  x.strokeStyle = 'rgba(255,255,255,.45)'; x.lineWidth = 1.5;
+  for (let r = 0; r < 4; r++) {
+    const y0 = seaY + 14 + r * 22; x.beginPath();
+    for (let px = 0; px <= w; px += 6) { const py = y0 + Math.sin(px / 22 + t * 1.4 + r) * 2.2; px ? x.lineTo(px, py) : x.moveTo(px, py); }
+    x.globalAlpha = 0.5 + r * 0.12; x.stroke(); x.globalAlpha = 1;
+  }
+  // boat
+  if (lv >= 5) {
+    const bx = w * 0.14 + Math.sin(t * 0.3) * 10, by = h * 0.86 + Math.sin(t * 1.6) * 2;
+    x.fillStyle = '#8B5A3C'; x.beginPath(); x.moveTo(bx - 16, by); x.lineTo(bx + 16, by); x.lineTo(bx + 10, by + 7); x.lineTo(bx - 10, by + 7); x.fill();
+    x.fillStyle = '#FFFCF6'; x.beginPath(); x.moveTo(bx, by - 2); x.lineTo(bx, by - 24); x.lineTo(bx + 13, by - 4); x.fill();
+  }
+  // sand + grass
+  x.fillStyle = '#F1D9A8'; x.beginPath(); x.ellipse(cx, cy, rx, ry, 0, 0, 7); x.fill();
+  x.fillStyle = '#E5C68C'; x.beginPath(); x.ellipse(cx, cy + ry * 0.35, rx * 0.96, ry * 0.62, 0, 0, Math.PI); x.fill();
+  const gy = cy - ry * 0.22, grx = rx * 0.8, gry = ry * 0.72;
+  x.fillStyle = '#5FA86B'; x.beginPath(); x.ellipse(cx, gy, grx, gry, 0, 0, 7); x.fill();
+  x.fillStyle = '#4C955A'; x.beginPath(); x.ellipse(cx, gy + gry * 0.3, grx * 0.9, gry * 0.55, 0, 0, Math.PI); x.fill();
+  // items with depth
+  const R = rng(20261105); const items = [];
+  const spot = () => { const a = R() * Math.PI * 2, r = Math.sqrt(R()) * 0.82; return [cx + Math.cos(a) * grx * r, gy + Math.sin(a) * gry * r]; };
+  const flowers = Math.min(st.praiseN, 40);
+  for (let i = 0; i < flowers; i++) { const [fx, fy] = spot(); items.push({ y: fy, d: () => { x.fillStyle = i % 3 ? '#FF8FAB' : '#FFE07A'; x.beginPath(); x.arc(fx, fy, 2.2, 0, 7); x.fill(); } }); }
+  const palms = Math.min(lv + 1, 11);
+  const R2 = rng(77);
+  for (let i = 0; i < palms; i++) {
+    const a = Math.PI * (0.95 + R2() * 1.1), r = 0.55 + R2() * 0.35;
+    const px = cx + Math.cos(a) * grx * r, py = gy + Math.sin(a) * gry * r * 0.8;
+    const s = 0.8 + R2() * 0.45, lean = (px < cx ? -1 : 1) * (4 + R2() * 6);
+    items.push({ y: py, d: () => palm(x, px, py, s, lean, t + i) });
+  }
+  if (lv >= 3) items.push({ y: gy - gry * 0.3, d: () => hut(x, cx - grx * 0.42, gy - gry * 0.3) });
+  if (st.visited >= 5) items.push({ y: gy - gry * 0.1, d: () => flag(x, cx + grx * 0.55, gy - gry * 0.1, t) });
+  if (st.visited >= 10) items.push({ y: gy + gry * 0.35, d: () => market(x, cx - grx * 0.62, gy + gry * 0.35, t) });
+  const cs = Math.max(1.4, Math.min(1.9, w / 230));
+  const py0 = gy + gry * 0.32;
+  const ppl = st.people.length ? st.people : [{ g: 'f', mood: 'normal' }];
+  ppl.forEach((pp, i) => {
+    const off = ppl.length > 1 ? (i ? 1 : -1) * 15 * cs : 0;
+    const alt = ppl.length > 1 && i === 1 && ppl[0].g === pp.g;
+    items.push({ y: py0 + 0.1, d: () => person(x, cx + off, py0, cs, pp.g, pp.mood, t + i * 1.7, alt) });
+  });
+  if (ppl.length > 1 && ppl.every(pp => pp.mood === 'normal')) items.push({ y: py0 + 0.2, d: () => heart(x, cx, py0 - 40 * cs + (reduceMotion ? 0 : Math.sin(t * 2) * 1.5), cs) });
+  const runner = (kind, speed, off) => {
+    const a = (reduceMotion ? 0 : t * speed) + off;
+    const dx = cx + Math.cos(a) * grx * 0.62, dy = gy + Math.sin(a) * gry * 0.5 + gry * 0.12;
+    const dir = -Math.sin(a) * speed >= 0 ? 1 : -1;
+    items.push({ y: dy, d: () => dog(x, dx, dy, t, kind, dir) });
+  };
+  if (st.retriever) runner('retriever', 0.55, 0.6);
+  if (st.maltese) runner('maltese', -0.75, 2.8);
+  items.sort((a, b) => a.y - b.y).forEach(i => i.d());
+  if (st.fart) fartOverlay(x, w, h, t, cx, gy, grx, gry);
+}
+function heart(x, hx, hy, s) {
+  x.fillStyle = '#DD4F75'; x.beginPath();
+  x.moveTo(hx, hy + 4 * s);
+  x.bezierCurveTo(hx - 6 * s, hy - 1 * s, hx - 3 * s, hy - 6 * s, hx, hy - 2.5 * s);
+  x.bezierCurveTo(hx + 3 * s, hy - 6 * s, hx + 6 * s, hy - 1 * s, hx, hy + 4 * s);
+  x.fill();
+}
+function person(x, px, py, s, g, mood, t, alt) {
+  const girl = g === 'f';
+  const sick = mood === 'sick', hehe = mood === 'hehe';
+  const bob = reduceMotion ? 0 : hehe ? Math.abs(Math.sin(t * 5)) * 2.2 : 0;
+  const sway = reduceMotion ? 0 : sick ? Math.sin(t * 3) * 1.2 : 0;
+  const skin = sick ? '#D3E6AE' : '#FFE1C9';
+  const hair = girl ? '#5A3A2A' : '#2E2622';
+  const cloth = girl ? (alt ? '#9C7BD8' : '#F28CA8') : (alt ? '#6BBF8A' : '#5AA0C8');
+  x.fillStyle = 'rgba(0,0,0,.15)'; x.beginPath(); x.ellipse(px, py, 8 * s, 2.2 * s, 0, 0, 7); x.fill();
+  x.save(); x.translate(px + sway, py - bob); x.scale(s, s);
+  x.fillStyle = '#3B4A5A'; x.fillRect(-3.6, -7, 2.6, 7); x.fillRect(1, -7, 2.6, 7);
+  x.fillStyle = cloth; x.beginPath();
+  if (girl) { x.moveTo(-4, -17); x.lineTo(4, -17); x.lineTo(7, -6); x.lineTo(-7, -6); x.closePath(); }
+  else { x.roundRect ? x.roundRect(-5.5, -17.5, 11, 12, 3) : x.rect(-5.5, -17.5, 11, 12); }
+  x.fill();
+  x.fillStyle = skin;
+  x.beginPath(); x.arc(-6.2, -11.5, 1.8, 0, 7); x.fill();
+  if (sick) { x.beginPath(); x.arc(1.2, -19.2, 2, 0, 7); x.fill(); }
+  else { x.beginPath(); x.arc(6.2, hehe ? -14 : -11.5, 1.8, 0, 7); x.fill(); }
+  if (girl) { x.fillStyle = hair; x.beginPath(); x.ellipse(0, -21, 8, 9.5, 0, 0, 7); x.fill(); }
+  x.fillStyle = skin; x.beginPath(); x.arc(0, -23.5, 6.6, 0, 7); x.fill();
+  x.fillStyle = hair; x.beginPath(); x.ellipse(0, -28.3, girl ? 7.2 : 7, 3.8, 0, 0, 7); x.fill();
+  if (!girl) { x.beginPath(); x.ellipse(-3, -26.5, 3, 1.8, 0, 0, 7); x.fill(); }
+  else { x.fillStyle = '#FF8FAB'; x.beginPath(); x.arc(5, -28.5, 1.6, 0, 7); x.fill(); }
+  x.strokeStyle = '#2B2420'; x.fillStyle = '#2B2420'; x.lineWidth = 0.9; x.lineCap = 'round';
+  if (hehe) {
+    x.beginPath(); x.arc(-2.6, -23, 1.3, Math.PI * 1.1, Math.PI * 1.9); x.stroke();
+    x.beginPath(); x.arc(2.6, -23, 1.3, Math.PI * 1.1, Math.PI * 1.9); x.stroke();
+    x.fillStyle = '#B23A48'; x.beginPath(); x.arc(0, -20.6, 2, 0, Math.PI); x.fill();
+    x.fillStyle = 'rgba(255,143,171,.7)'; x.beginPath(); x.ellipse(-4.4, -20.8, 1.4, 0.9, 0, 0, 7); x.ellipse(4.4, -20.8, 1.4, 0.9, 0, 0, 7); x.fill();
+  } else if (sick) {
+    [[-2.6, -23.4], [2.6, -23.4]].forEach(([ex, ey]) => { x.beginPath(); x.moveTo(ex - 1.1, ey - 1); x.lineTo(ex + 1.1, ey + 1); x.moveTo(ex + 1.1, ey - 1); x.lineTo(ex - 1.1, ey + 1); x.stroke(); });
+    x.fillStyle = '#B9D88A'; x.beginPath(); x.ellipse(-3.6, -20.6, 1.6, 1.2, 0, 0, 7); x.ellipse(3.6, -20.6, 1.6, 1.2, 0, 0, 7); x.fill();
+    x.fillStyle = '#7FC1E8'; x.beginPath(); x.moveTo(6.8, -28); x.quadraticCurveTo(8.6, -24.8, 6.8, -24); x.quadraticCurveTo(5, -24.8, 6.8, -28); x.fill();
+    x.strokeStyle = 'rgba(122,82,48,.7)';
+    for (let k = 0; k < 3; k++) { const ox = -4 + k * 4, oy = -35 - ((t * 6 + k * 3) % 6); x.beginPath(); x.moveTo(ox, oy + 4); x.quadraticCurveTo(ox + 1.5, oy + 2, ox, oy); x.quadraticCurveTo(ox - 1.5, oy - 2, ox, oy - 4); x.stroke(); }
+  } else {
+    x.beginPath(); x.arc(-2.6, -23.2, 0.95, 0, 7); x.arc(2.6, -23.2, 0.95, 0, 7); x.fill();
+    x.beginPath(); x.arc(0, -21.2, 1.6, 0.15 * Math.PI, 0.85 * Math.PI); x.stroke();
+    x.fillStyle = 'rgba(255,143,171,.7)'; x.beginPath(); x.ellipse(-4.4, -21, 1.4, 0.9, 0, 0, 7); x.ellipse(4.4, -21, 1.4, 0.9, 0, 0, 7); x.fill();
+  }
+  if (hehe) {
+    x.fillStyle = '#FFFCF6'; x.strokeStyle = '#7A5230'; x.lineWidth = 0.7;
+    x.beginPath(); x.roundRect ? x.roundRect(4, -45, 19, 10, 4) : x.rect(4, -45, 19, 10); x.fill(); x.stroke();
+    x.beginPath(); x.moveTo(6, -35.5); x.lineTo(5, -32); x.lineTo(9, -35.5); x.fill();
+    x.fillStyle = '#7A5230'; x.font = '6.5px Jua, sans-serif'; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText('헤헤', 13.5, -39.8);
+  }
+  x.restore();
+}
+function fartOverlay(x, w, h, t, cx, gy, grx, gry) {
+  x.fillStyle = 'rgba(140,100,60,.14)'; x.fillRect(0, 0, w, h);
+  const R = rng(4242);
+  for (let i = 0; i < 16; i++) {
+    const bx = R() * w, by = h * (0.25 + R() * 0.6), sz = 14 + R() * 22;
+    const dx = reduceMotion ? 0 : Math.sin(t * 0.4 + i) * 14 + ((t * (6 + i % 4)) % 40) - 20;
+    const dy = reduceMotion ? 0 : Math.sin(t * 0.7 + i * 2) * 4;
+    x.fillStyle = i % 3 ? 'rgba(122,82,48,.30)' : 'rgba(160,115,66,.28)';
+    x.beginPath();
+    x.arc(bx + dx, by + dy, sz * 0.6, 0, 7);
+    x.arc(bx + dx + sz * 0.5, by + dy - sz * 0.2, sz * 0.5, 0, 7);
+    x.arc(bx + dx - sz * 0.45, by + dy - sz * 0.1, sz * 0.45, 0, 7);
+    x.fill();
+  }
+  x.strokeStyle = 'rgba(110,72,38,.55)'; x.lineWidth = 1.6; x.lineCap = 'round';
+  for (let i = 0; i < 6; i++) {
+    const sx = cx + (i - 2.5) * grx * 0.32, sy = gy - gry * 0.4 - ((t * 10 + i * 9) % 30);
+    x.beginPath(); x.moveTo(sx, sy + 8); x.quadraticCurveTo(sx + 3, sy + 4, sx, sy); x.quadraticCurveTo(sx - 3, sy - 4, sx, sy - 8); x.stroke();
+  }
+}
+function palm(x, px, py, s, lean, t) {
+  const top = [px + lean * s, py - 34 * s];
+  x.strokeStyle = '#8B6A43'; x.lineWidth = 3.2 * s; x.lineCap = 'round';
+  x.beginPath(); x.moveTo(px, py); x.quadraticCurveTo(px + lean * 0.2 * s, py - 18 * s, top[0], top[1]); x.stroke();
+  const sway = reduceMotion ? 0 : Math.sin(t * 1.2) * 0.06;
+  x.fillStyle = '#2F7D4A';
+  for (let k = 0; k < 6; k++) {
+    const ang = -Math.PI / 2 + (k - 2.5) * 0.55 + sway;
+    x.save(); x.translate(top[0], top[1]); x.rotate(ang);
+    x.beginPath(); x.ellipse(11 * s, 0, 12 * s, 3.2 * s, 0.35 * (k < 3 ? 1 : -1), 0, 7); x.fill(); x.restore();
+  }
+  x.fillStyle = '#7A4E2D'; x.beginPath(); x.arc(top[0] - 1, top[1] + 2, 2 * s, 0, 7); x.arc(top[0] + 2, top[1] + 3, 2 * s, 0, 7); x.fill();
+}
+function hut(x, hx, hy) {
+  x.fillStyle = '#C99A63'; x.fillRect(hx - 11, hy - 14, 22, 14);
+  x.fillStyle = '#9C6B3A'; x.beginPath(); x.moveTo(hx - 15, hy - 13); x.lineTo(hx, hy - 26); x.lineTo(hx + 15, hy - 13); x.fill();
+  x.fillStyle = '#5A3C22'; x.fillRect(hx - 3, hy - 9, 6, 9);
+}
+function flag(x, fx, fy, t) {
+  x.strokeStyle = '#5A3C22'; x.lineWidth = 2; x.beginPath(); x.moveTo(fx, fy); x.lineTo(fx, fy - 34); x.stroke();
+  const wv = reduceMotion ? 0 : Math.sin(t * 3) * 2;
+  x.fillStyle = '#DD4F75'; x.beginPath(); x.moveTo(fx, fy - 34); x.quadraticCurveTo(fx + 10, fy - 31 + wv, fx + 20, fy - 28); x.lineTo(fx, fy - 22); x.fill();
+  x.fillStyle = '#fff'; x.font = '8px sans-serif'; x.fillText('★', fx + 4, fy - 25);
+}
+function dog(x, px, py, t, kind, dir) {
+  const ret = kind === 'retriever';
+  const run = reduceMotion ? 0 : t * (ret ? 11 : 14);
+  const hop = reduceMotion ? 0 : Math.abs(Math.sin(run)) * (ret ? 2.2 : 2.6);
+  const s = ret ? 1.2 : 0.88;
+  x.save(); x.translate(px, py); x.scale(dir * s, s);
+  // shadow
+  x.fillStyle = 'rgba(0,0,0,.14)'; x.beginPath(); x.ellipse(0, 1, 11, 2.6, 0, 0, 7); x.fill();
+  x.translate(0, -hop);
+  const body = ret ? '#DDA45A' : '#FBFAF6', dark = ret ? '#B97E37' : '#E4E0D8';
+  // legs
+  x.strokeStyle = dark; x.lineWidth = 2.6; x.lineCap = 'round';
+  const sw = Math.sin(run) * 2.6;
+  [[-6, sw], [-3, -sw], [5, -sw], [8, sw]].forEach(([lx, k]) => { x.beginPath(); x.moveTo(lx, -5); x.lineTo(lx + k, 0); x.stroke(); });
+  // tail
+  x.strokeStyle = ret ? '#C98B42' : '#F1EEE7'; x.lineWidth = ret ? 3 : 4;
+  x.beginPath(); x.moveTo(-9, -8); x.quadraticCurveTo(-15, -13 + Math.sin(run * 1.5) * 2, -13, -17); x.stroke();
+  // body
+  x.fillStyle = body; x.beginPath(); x.ellipse(1, -8, 10.5, 5.5, 0, 0, 7); x.fill();
+  if (!ret) { x.strokeStyle = '#DCD7CC'; x.lineWidth = 0.8; x.stroke(); [[-5, -11], [1, -12.5], [6, -11]].forEach(([fx, fy]) => { x.fillStyle = body; x.beginPath(); x.arc(fx, fy, 3, 0, 7); x.fill(); }); }
+  // head
+  x.fillStyle = body; x.beginPath(); x.arc(11, -14, ret ? 5.2 : 5.6, 0, 7); x.fill();
+  if (!ret) { x.strokeStyle = '#DCD7CC'; x.lineWidth = 0.8; x.stroke(); }
+  x.fillStyle = body; x.beginPath(); x.ellipse(15.5, -12.5, 3.4, 2.4, 0, 0, 7); x.fill();
+  // ear
+  x.fillStyle = dark; x.beginPath(); x.ellipse(8.5, -12.5, 2.4, 4, 0.35, 0, 7); x.fill();
+  // eye & nose
+  x.fillStyle = '#2B2420'; x.beginPath(); x.arc(12.6, -15.4, 0.95, 0, 7); x.fill();
+  x.beginPath(); x.arc(18.6, -13, 1.15, 0, 7); x.fill();
+  if (!ret) {
+    x.fillStyle = '#FF8FAB';
+    x.beginPath(); x.moveTo(10, -19); x.lineTo(7, -21.5); x.lineTo(7.5, -17.5); x.fill();
+    x.beginPath(); x.moveTo(10, -19); x.lineTo(13, -21.5); x.lineTo(12.5, -17.5); x.fill();
+  } else {
+    x.fillStyle = '#E2557A'; x.fillRect(6.5, -11, 3, 2.2);
+  }
+  x.restore();
+}
+function market(x, mx, my, t) {
+  x.fillStyle = '#8B6A43'; x.fillRect(mx - 14, my - 16, 2, 16); x.fillRect(mx + 12, my - 16, 2, 16);
+  x.fillStyle = '#C99A63'; x.fillRect(mx - 14, my - 6, 28, 6);
+  for (let i = 0; i < 4; i++) { x.fillStyle = i % 2 ? '#FFFCF6' : '#DD4F75'; x.fillRect(mx - 16 + i * 8, my - 22, 8, 7); }
+  for (let i = 0; i < 4; i++) { const on = reduceMotion ? 1 : 0.6 + 0.4 * Math.sin(t * 2 + i); x.fillStyle = `rgba(242,181,68,${on})`; x.beginPath(); x.arc(mx - 22 + i * 6 + 30, my - 26 + Math.sin(i) * 2, 2, 0, 7); x.fill(); }
+}
+
+/* ---------- render ---------- */
+function setHeader() {
+  $('#isleName').textContent = S.couple?.name || '듀오 아일랜드';
+  const dd = $('#dday');
+  if (S.couple?.since) {
+    const days = Math.floor((parseYmd(todayStr()) - parseYmd(S.couple.since)) / 864e5) + 1;
+    dd.textContent = days > 0 ? `D+${days}` : `D${days - 1}`; dd.hidden = false;
+  } else dd.hidden = true;
+  $('#settingsBtn').hidden = !isMember();
+  document.querySelectorAll('#tabs a').forEach(a => a.setAttribute('aria-current', a.dataset.tab === S.tab ? 'page' : 'false'));
+}
+function banners() {
+  let h = '';
+  if (S.offline) h += `<div class="banner warn">데이터를 아직 불러오지 못했어요. 연결 상태를 확인해 주세요.</div>`;
+  return h;
+}
+function render() {
+  setHeader();
+  const m = $('#main');
+  $('#tabs').hidden = S.phase !== 'app';
+  if (S.phase !== 'app') m.classList.remove('full');
+  if (S.phase === 'loading') { m.innerHTML = `<div class="empty">섬으로 가는 배를 기다리는 중…</div>`; return; }
+  if (S.phase === 'error') { m.innerHTML = `<div class="card stack"><h3>연결하지 못했어요</h3><p class="muted" style="margin:0">인터넷 연결을 확인한 뒤 다시 시도해 주세요.</p><button class="btn block" data-act="reload">다시 시도</button></div>`; return; }
+  if (S.phase === 'auth') { m.innerHTML = authHtml(); wireAuth(); startIsland(); return; }
+  if (S.phase === 'setup') { m.innerHTML = setupHtml(); wireSetup(); startIsland(); return; }
+  if (!S.coupleLoaded) { m.innerHTML = banners() + `<div class="empty">섬으로 가는 배를 기다리는 중…</div>`; return; }
+  if (!S.couple || !isMember()) { m.innerHTML = `<div class="card stack"><h3>섬을 찾을 수 없어요</h3><p class="muted" style="margin:0">다시 로그인해 주세요.</p><button class="btn block" data-act="logout">로그아웃</button></div>`; return; }
+  m.classList.toggle('full', S.tab === 'footprints');
+  const body = S.tab === 'calendar' ? calendarHtml() : S.tab === 'tasty' ? tastyHtml() : S.tab === 'footprints' ? footprintsHtml() : islandHtml();
+  m.innerHTML = (S.tab === 'footprints' ? '' : banners()) + body;
+  if (S.tab === 'island') startIsland();
+  if (S.tab === 'footprints') mountMap();
+  loadPhotos(m);
+  maybeAskGender();
+}
+
+/* ---------- auth & setup ---------- */
+const AUTH_ERR = {
+  'auth/invalid-credential': '이메일 또는 비밀번호가 맞지 않아요.',
+  'auth/wrong-password': '이메일 또는 비밀번호가 맞지 않아요.',
+  'auth/user-not-found': '가입되지 않은 이메일이에요.',
+  'auth/email-already-in-use': '이미 가입된 이메일이에요. 로그인해 주세요.',
+  'auth/weak-password': '비밀번호는 6자 이상이어야 해요.',
+  'auth/invalid-email': '이메일 형식을 확인해 주세요.',
+  'auth/missing-password': '비밀번호를 입력해 주세요.',
+  'auth/too-many-requests': '시도가 너무 많아요. 잠시 후 다시 시도해 주세요.',
+  'auth/network-request-failed': '인터넷 연결을 확인해 주세요.',
+  'auth/operation-not-allowed': '이메일 로그인이 꺼져 있어요. Firebase 설정을 확인해 주세요.'
+};
+const authErr = e => AUTH_ERR[e?.code] || '잠시 후 다시 시도해 주세요.';
+function authHtml() {
+  const join = S.authMode === 'join';
+  return `<div class="stack onboard">
+    <div class="stage"><canvas id="isle"></canvas></div>
+    <form class="card" id="authForm" novalidate>
+      <h2>${join ? '회원가입' : '로그인'}</h2>
+      <label class="field"><span>이메일</span><input id="au-email" type="email" autocomplete="email" inputmode="email" autocapitalize="off"></label>
+      <label class="field"><span>비밀번호</span><input id="au-pw" type="password" autocomplete="${join ? 'new-password' : 'current-password'}" minlength="6" placeholder="${join ? '6자 이상' : ''}"></label>
+      <button class="btn block" id="au-go" type="submit">${join ? '가입하기' : '로그인'}</button>
+      <div class="row" style="justify-content:space-between;margin-top:10px">
+        <button type="button" class="link" data-act="auth-mode">${join ? '이미 계정이 있어요' : '처음이에요, 가입할게요'}</button>
+        ${join ? '' : '<button type="button" class="link" data-act="auth-reset">비밀번호 찾기</button>'}
+      </div>
+    </form></div>`;
+}
+function wireAuth() {
+  const f = $('#authForm'); if (!f) return;
+  f.addEventListener('submit', async e => {
+    e.preventDefault();
+    const em = $('#au-email').value.trim(), pw = $('#au-pw').value, go = $('#au-go');
+    if (!em || !pw) return toast('이메일과 비밀번호를 입력해 주세요.');
+    go.disabled = true;
+    try {
+      if (S.authMode === 'join') await F.createUserWithEmailAndPassword(auth, em, pw);
+      else await F.signInWithEmailAndPassword(auth, em, pw);
+    } catch (er) { toast(authErr(er)); go.disabled = false; }
+  });
+}
+async function resetPassword() {
+  const em = $('#au-email')?.value.trim();
+  if (!em) return toast('이메일을 먼저 입력해 주세요.');
+  try { await F.sendPasswordResetEmail(auth, em); toast('비밀번호 재설정 메일을 보냈어요.'); } catch (er) { toast(authErr(er)); }
+}
+function setupHtml() {
+  const join = S.setupMode === 'join';
+  return `<div class="stack onboard">
+    <div class="stage"><canvas id="isle"></canvas></div>
+    <div class="seg" role="group"><button data-act="setup-mode" data-v="create" aria-pressed="${!join}">섬 만들기</button><button data-act="setup-mode" data-v="join" aria-pressed="${join}">초대 코드로 입주</button></div>
+    <div class="card">
+      ${join
+        ? `<h2>연인의 섬에 입주하기</h2>
+           <label class="field"><span>초대 코드</span><input id="st-code" maxlength="6" autocapitalize="characters" autocomplete="off" placeholder="예: K7PX2M" style="text-transform:uppercase;letter-spacing:3px"></label>
+           <label class="field"><span>내 닉네임</span><input id="st-nick" maxlength="12" placeholder="예: 하늘"></label>
+           <div class="field"><span>나는</span><div class="opts" id="st-gender"><button type="button" class="opt" data-v="f" aria-pressed="true">여자</button><button type="button" class="opt" data-v="m" aria-pressed="false">남자</button></div></div>
+           <button class="btn block" id="st-go">입주하기</button>`
+        : `<h2>우리 섬 만들기</h2>
+           <label class="field"><span>섬 이름</span><input id="st-name" maxlength="16" placeholder="예: 우리 둘의 섬"></label>
+           <label class="field"><span>내 닉네임</span><input id="st-nick" maxlength="12" placeholder="예: 바다"></label>
+           <div class="field"><span>나는</span><div class="opts" id="st-gender"><button type="button" class="opt" data-v="f" aria-pressed="true">여자</button><button type="button" class="opt" data-v="m" aria-pressed="false">남자</button></div></div>
+           <label class="field"><span>처음 만난 날</span><input id="st-since" type="date"></label>
+           <button class="btn block" id="st-go">섬 만들기</button>`}
+      <div class="row" style="justify-content:flex-end;margin-top:10px"><button class="link" data-act="logout">로그아웃</button></div>
+    </div></div>`;
+}
+const genCode = () => { const A = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let c = ''; const r = crypto.getRandomValues(new Uint32Array(6)); r.forEach(v => c += A[v % A.length]); return c; };
+async function makeInvite(iid) {
+  let code = genCode();
+  for (let i = 0; i < 5; i++) { const ex = await F.getDoc(F.doc(db, 'invites', code)); if (!ex.exists()) break; code = genCode(); }
+  await F.setDoc(F.doc(db, 'invites', code), { islandId: iid, createdBy: S.me, createdAt: Date.now() });
+  await F.updateDoc(F.doc(db, 'islands', iid), { inviteCode: code });
+  return code;
+}
+function wireSetup() {
+  const go = $('#st-go'); if (!go) return;
+  wireOpts($('#main'));
+  go.addEventListener('click', async () => {
+    const n = $('#st-nick').value.trim();
+    const gd = optVal($('#main'), 'st-gender') || 'f';
+    if (!n) return toast('닉네임을 입력해 주세요.');
+    go.disabled = true;
+    try {
+      if (S.setupMode === 'join') {
+        const code = $('#st-code').value.trim().toUpperCase();
+        if (code.length !== 6) { toast('초대 코드 6자리를 입력해 주세요.'); go.disabled = false; return; }
+        const inv = await F.getDoc(F.doc(db, 'invites', code));
+        if (!inv.exists()) { toast('초대 코드를 다시 확인해 주세요.'); go.disabled = false; return; }
+        const iid = inv.data().islandId;
+        let is;
+        try { is = await F.getDoc(F.doc(db, 'islands', iid)); } catch (er) { toast('이미 두 사람이 입주한 섬이에요.'); go.disabled = false; return; }
+        const d = is.data();
+        if (!d.members.includes(S.me)) {
+          if (d.members.length >= 2) { toast('이미 두 사람이 입주한 섬이에요.'); go.disabled = false; return; }
+          await F.updateDoc(is.ref, { members: [...d.members, S.me], [`nick.${S.me}`]: n, [`gender.${S.me}`]: gd });
+        }
+        await F.setDoc(F.doc(db, 'users', S.me), { islandId: iid });
+        toast('입주를 환영해요!'); enterIsland(iid);
+      } else {
+        const ref = F.doc(F.collection(db, 'islands'));
+        await F.setDoc(ref, { name: $('#st-name').value.trim() || '우리 둘의 섬', since: $('#st-since').value || todayStr(), members: [S.me], nick: { [S.me]: n }, gender: { [S.me]: gd }, createdAt: Date.now() });
+        await makeInvite(ref.id);
+        await F.setDoc(F.doc(db, 'users', S.me), { islandId: ref.id });
+        toast('섬이 생겼어요!'); enterIsland(ref.id);
+      }
+    } catch (er) { toast(errMsg(er)); go.disabled = false; }
+  });
+}
+
+/* ---------- island tab ---------- */
+function islandHtml() {
+  const st = stats(); const g = gifts(); const pid = partnerId(); const t = todayStr();
+  const todays = S.records.filter(r => r.date === t).sort((a, b) => a.createdAt - b.createdAt);
+  const recv = S.praises.filter(p => p.to === S.me && p.openedAt).sort((a, b) => b.openedAt - a.openedAt).slice(0, 3);
+  const pending = S.praises.filter(p => p.to === S.me && !revealed(p)).length;
+  const [m0, m1] = members();
+  const unlocks = [
+    { ic: 'luna', on: st.retriever, t: '루나', d: st.retriever ? '지금 섬에서 뛰어놀고 있어요' : `${nick(m0)}님이 칭찬을 보내면 3일 동안 놀러 와요` },
+    { ic: 'sin', on: st.maltese, t: '신둥이', d: st.maltese ? '지금 섬에서 뛰어놀고 있어요' : `${m1 ? nick(m1) + '님이' : '연인이'} 칭찬을 보내면 3일 동안 놀러 와요` },
+    { ic: 'hut', on: st.lv >= 3, t: '작은 오두막', d: 'Lv.3 달성' },
+    { ic: 'flag', on: st.visited >= 5, t: '미식가 깃발', d: `맛집 도감 ${Math.min(st.visited, 5)}/5곳` },
+    { ic: 'boat', on: st.lv >= 5, t: '돛단배', d: 'Lv.5 달성' },
+    { ic: 'market', on: st.visited >= 10, t: '작은 야시장', d: `맛집 도감 ${Math.min(st.visited, 10)}/10곳` }
+  ];
+  return `<div class="stack">
+    <div class="stage"><canvas id="isle" aria-label="우리 섬 레벨 ${st.lv}"></canvas>
+      <div class="lvbox"><b>Lv.${st.lv}</b> <span class="muted">${st.next ? `다음 레벨까지 ${st.next - st.xp}점` : '최고 레벨'}</span><div class="bar"><i style="width:${st.pct}%"></i></div>
+      <div class="muted" style="margin-top:4px">함께 기록한 날 ${st.both}일 · 칭찬 ${st.praiseN}개</div></div>
+    </div>
+    ${!pid ? `<div class="card"><h3>아직 혼자 사는 섬이에요</h3><p class="muted" style="margin:0">이 페이지를 연인에게 공유하면 함께 입주할 수 있어요.</p></div>` : ''}
+    ${g.length ? `<button class="gift" data-act="open-gift" data-id="${g[0].id}">
+        <svg class="box" viewBox="0 0 52 52"><rect x="7" y="20" width="38" height="26" rx="4" fill="#DD4F75"/><rect x="4" y="13" width="44" height="10" rx="3" fill="#F06E92"/><rect x="23" y="13" width="6" height="33" fill="#F2B544"/><path d="M26 13c-6-9-14-6-11-1 2 3 11 1 11 1zm0 0c6-9 14-6 11-1-2 3-11 1-11 1z" fill="#F2B544"/></svg>
+        <span><b>${esc(nick(g[0].from))}님의 선물이 도착했어요</b><span class="muted">${g.length > 1 ? `상자 ${g.length}개 · ` : ''}눌러서 열어보세요</span></span></button>` : ''}
+    ${pid && fartActive(pid) ? `<div class="fartcard">${POO_SVG}<span><b>${esc(nick(pid))}님이 똥방구를 뀌었어요!</b><span class="muted">냄새가 ${fartLeftH(pid)}시간 더 남아 있어요</span></span></div>` : ''}
+    <div class="grid2">
+      <button class="btn alt" data-act="praise" ${!pid || !canWrite() ? 'disabled' : ''}>칭찬 보내기</button>
+      <button class="btn" data-act="record" data-date="${t}" ${!canWrite() ? 'disabled' : ''}>오늘의 한 줄</button>
+    </div>
+    <button class="btn poo block" data-act="fart" ${!pid || !canWrite() || fartActive(S.me) ? 'disabled' : ''}>${fartActive(S.me) ? `똥방구 충전 중 · ${fartLeftH(S.me)}시간 남음` : '똥방구 발사!'}</button>
+    ${(() => { const na = nextAnniv(); return na ? `<div class="nextannv"><span><span class="muted">다음 기념일</span><br><b>${esc(na.names.join(' · '))}</b></span><span style="text-align:right"><b>${na.dd ? 'D-' + na.dd : '오늘'}</b><br><span class="muted">${dotDate(na.ds)}</span></span></div>` : ''; })()}
+    ${pending ? `<p class="muted" style="margin:0">곧 열릴 선물 상자가 ${pending}개 있어요.</p>` : ''}
+    <div><div class="sec-title">오늘 우리 섬<small>${dotDate(t)}</small></div>
+      ${todays.length ? `<div class="card">${todays.map(r => `<div class="line">${whoChip(r.author)}<p>${esc(r.text || '사진을 남겼어요')}</p></div>`).join('')}</div>`
+        : `<div class="card empty">오늘의 한 줄이 아직 없어요.</div>`}
+    </div>
+    ${recv.length ? `<div><div class="sec-title">최근 받은 칭찬</div><div class="stack">${recv.map((p, i) => `<div class="note ${i % 2 ? 'mint' : 'pink'}" style="--r:${rot(i)}deg">${esc(p.text)}<div class="meta">${esc(nick(p.from))} · ${dotDate(ymd(new Date(p.createdAt)))}</div></div>`).join('')}</div></div>` : ''}
+    <div><div class="sec-title">섬 꾸미기</div><div class="card stack">${unlocks.map(u => `<div class="unlock ${u.on ? 'done' : ''}"><span class="dot">${ICONS[u.ic]}${u.on ? '<i class="ok" aria-label="획득">✓</i>' : ''}</span><span><b>${u.t}</b><br><span class="muted">${u.d}</span></span></div>`).join('')}</div></div>
+  </div>`;
+}
+
+/* ---------- calendar tab ---------- */
+function calendarHtml() {
+  const { y, m } = S.cal; const first = new Date(y, m, 1); const start = new Date(y, m, 1 - first.getDay());
+  const t = todayStr(); let cells = '';
+  for (let i = 0; i < 42; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    if (i >= 35 && d.getMonth() !== m) break;
+    const ds = ymd(d);
+    const recs = S.records.filter(r => r.date === ds);
+    const evs = S.events.filter(e => e.date === ds);
+    const prs = S.praises.filter(p => p.date === ds && visiblePraise(p));
+    const authors = [...new Set(recs.map(r => r.author))];
+    cells += `<button class="day ${d.getMonth() !== m ? 'out' : ''} ${ds === t ? 'today' : ''} ${ds === S.sel ? 'sel' : ''}" data-act="sel" data-date="${ds}" aria-label="${d.getMonth()+1}월 ${d.getDate()}일">
+      <span class="n">${d.getDate()}</span>
+      ${evs.slice(0, 2).map(e => `<span class="ev ${side(e.owner)}"></span>`).join('')}
+      <span class="marks">${authors.map(a => `<i class="mk ${side(a)}"></i>`).join('')}${recs.some(r => r.photoId) ? '<i class="mk photo"></i>' : ''}${prs.length ? '<i class="mk heart">♥</i>' : ''}${annivsOn(ds).length ? '<i class="mk star">★</i>' : ''}</span>
+    </button>`;
+  }
+  return `<div class="stack">
+    <div><div class="calhead"><button class="iconbtn" data-act="mon" data-d="-1" aria-label="이전 달">‹</button><h2>${y}년 ${m + 1}월</h2><button class="iconbtn" data-act="mon" data-d="1" aria-label="다음 달">›</button></div>
+    <div class="row" style="justify-content:flex-end;margin:-4px 0 8px"><button class="btn small ghost" data-act="annivs">기념일 관리</button></div>
+    <div class="cal">${WD.map(w => `<div class="wd">${w}</div>`).join('')}${cells}</div>
+    <div class="row muted" style="margin-top:8px;gap:12px;font-size:12px">${members().map(id => `<span class="row" style="gap:4px"><i class="mk ${side(id)}"></i>${esc(nick(id))}</span>`).join('')}<span class="row" style="gap:4px"><i class="mk photo"></i>사진</span><span class="row" style="gap:4px"><i class="mk heart">♥</i>칭찬</span></div></div>
+    ${dayPanel(S.sel)}
+  </div>`;
+}
+function dayPanel(ds) {
+  const d = parseYmd(ds); const w = canWrite(); const pid = partnerId();
+  const recs = S.records.filter(r => r.date === ds).sort((a, b) => a.createdAt - b.createdAt);
+  const photos = recs.filter(r => r.photoId), texts = recs.filter(r => !r.photoId);
+  const evs = S.events.filter(e => e.date === ds).sort((a, b) => a.createdAt - b.createdAt);
+  const dayPr = S.praises.filter(p => p.date === ds && !p.eventId && visiblePraise(p));
+  const prNote = (p, i) => `<div class="note ${p.from === S.me ? 'mint' : ''}" style="--r:${rot(i)}deg">${esc(p.text)}<div class="meta">${esc(nick(p.from))} → ${esc(nick(p.to))}${p.from === S.me && !revealed(p) ? `<span class="tag">${timeLabel(p.revealAt)} 공개</span>` : ''}${p.from === S.me && revealed(p) && !p.openedAt ? '<span class="tag">아직 안 열어봤어요</span>' : ''}${p.from === S.me && w ? `<button class="link danger" data-act="del" data-col="praises" data-id="${p.id}">삭제</button>` : ''}</div></div>`;
+  const empty = !recs.length && !evs.length && !dayPr.length;
+  return `<div class="card stack">
+    <div class="dayhead"><h3>${d.getMonth() + 1}월 ${d.getDate()}일 ${WD[d.getDay()]}요일</h3></div>
+    ${annivsOn(ds).map(a => `<div class="annv"><span>★</span>${esc(a)}</div>`).join('')}
+    <div class="row">
+      <button class="btn small" data-act="record" data-date="${ds}" ${!w ? 'disabled' : ''}>기록</button>
+      <button class="btn small ghost" data-act="event" data-date="${ds}" ${!w ? 'disabled' : ''}>일정</button>
+      <button class="btn small alt" data-act="praise" data-date="${ds}" ${!w || !pid ? 'disabled' : ''}>칭찬 붙이기</button>
+    </div>
+    ${empty ? `<div class="empty">이 날의 기록이 아직 없어요.</div>` : ''}
+    ${photos.length ? `<div class="polas">${photos.map((r, i) => `<figure class="pola" style="--r:${rot(i + 2)}deg;margin:0"><div class="ph"><img data-photo="${esc(r.photoId)}" alt="${esc(r.text || '데이트 사진')}"></div><p>${esc(r.text || '')}</p><div class="row" style="justify-content:space-between;margin-top:4px">${whoChip(r.author)}${r.author === S.me && w ? `<button class="link danger" data-act="del" data-col="records" data-id="${r.id}">삭제</button>` : ''}</div></figure>`).join('')}</div>` : ''}
+    ${texts.length ? `<div>${texts.map(r => `<div class="line">${whoChip(r.author)}<p>${esc(r.text)}</p>${r.author === S.me && w ? `<button class="link danger" data-act="del" data-col="records" data-id="${r.id}">삭제</button>` : ''}</div>`).join('')}</div>` : ''}
+    ${evs.map(e => {
+      const ns = S.praises.filter(p => p.eventId === e.id && visiblePraise(p));
+      return `<div class="evcard ${side(e.owner)}"><div class="row" style="justify-content:space-between"><span class="t">${esc(e.title)}</span>${whoChip(e.owner)}</div>
+        <div class="evnotes">${ns.map(prNote).join('')}</div>
+        <div class="row" style="margin-top:8px;justify-content:space-between">
+          ${e.owner !== S.me && w ? `<button class="btn small alt" data-act="praise" data-date="${ds}" data-event="${e.id}">응원 붙이기</button>` : '<span></span>'}
+          ${w ? `<button class="link danger" data-act="del" data-col="events" data-id="${e.id}">일정 삭제</button>` : ''}
+        </div></div>`;
+    }).join('')}
+    ${dayPr.length ? `<div class="evnotes">${dayPr.map(prNote).join('')}</div>` : ''}
+  </div>`;
+}
+
+/* ---------- tasty tab ---------- */
+function tastyHtml() {
+  const visited = S.places.filter(p => p.status === 'visited');
+  const wish = S.places.filter(p => p.status === 'wish');
+  const inCat = p => S.cat === '전체' || p.cat === S.cat;
+  const w = canWrite();
+  const card = p => `<div class="card place">
+      <div class="cat" style="background:${CAT_COLOR[p.cat] || '#eee'}">${esc(p.cat)}</div>
+      <div class="body">
+        <div class="row" style="justify-content:space-between"><span class="name">${esc(p.name)}</span>${p.status === 'visited' ? starsHtml(p.rating || 0) : ''}</div>
+        ${p.status === 'visited'
+          ? `${p.review ? `<p class="review">${esc(p.review)}</p>` : ''}<div class="muted">${p.visitedAt ? dotDate(p.visitedAt) + ' 방문' : ''}</div>`
+          : `${p.memo ? `<p class="review">${esc(p.memo)}</p>` : ''}<div class="row" style="margin-top:2px">${whoChip(p.author)}<span class="muted">가 담았어요</span></div>`}
+        ${w ? `<div class="row" style="margin-top:8px;justify-content:space-between">
+          ${p.status === 'wish' ? `<button class="btn small" data-act="visit" data-id="${p.id}">다녀왔어요</button>` : `<button class="link" data-act="edit-place" data-id="${p.id}">수정</button>`}
+          <button class="link danger" data-act="del" data-col="places" data-id="${p.id}">삭제</button></div>` : ''}
+      </div></div>`;
+  const list = (S.tastyTab === 'visited' ? visited.sort((a, b) => (b.visitedAt || '').localeCompare(a.visitedAt || '')) : wish.sort((a, b) => b.createdAt - a.createdAt)).filter(inCat);
+  const n = visited.length;
+  return `<div class="stack">
+    <div class="seg" role="group"><button data-act="ttab" data-v="visited" aria-pressed="${S.tastyTab === 'visited'}">맛집 도감 ${visited.length}</button><button data-act="ttab" data-v="wish" aria-pressed="${S.tastyTab === 'wish'}">먹킷리스트 ${wish.length}</button></div>
+    ${S.tastyTab === 'visited'
+      ? `<div class="card"><h3>맛집 스탬프 북</h3><div class="muted">${n >= 10 ? '야시장까지 완성했어요' : n >= 5 ? `야시장까지 ${10 - n}곳 남았어요` : `미식가 깃발까지 ${5 - n}곳 남았어요`}</div>
+          <div class="stamps">${Array.from({ length: 10 }, (_, i) => `<div class="stamp ${i < n ? 'on' : ''}">${i < n ? '맛집' : i + 1}</div>`).join('')}</div></div>`
+      : `<button class="roulette-btn" data-act="roulette"><span><b>오늘 뭐 먹지?</b><span style="opacity:.75;font-size:13px">${S.cat === '전체' ? '먹킷리스트' : S.cat}에서 하나 골라줄게요</span></span>
+          <svg width="40" height="40" viewBox="0 0 40 40"><circle cx="20" cy="20" r="17" fill="none" stroke="#F2B544" stroke-width="3"/><path d="M20 20 L20 5 A15 15 0 0 1 33 13 Z" fill="#DD4F75"/><path d="M20 20 L33 13 A15 15 0 0 1 31 30 Z" fill="#A6E1D8"/><circle cx="20" cy="20" r="3" fill="#fff"/></svg></button>`}
+    <div class="chips" role="group">${['전체', ...CATS].map(c => `<button class="chip" data-act="cat" data-v="${c}" aria-pressed="${S.cat === c}">${c}</button>`).join('')}</div>
+    ${list.length ? list.map(card).join('') : `<div class="card empty">${S.tastyTab === 'visited' ? '함께 다녀온 맛집을 기록해 보세요.' : '먹고 싶은 곳을 담아 두세요.'}</div>`}
+    ${w ? `<div class="fab"><button class="btn" data-act="add-place">+ ${S.tastyTab === 'visited' ? '맛집 기록' : '먹킷리스트 담기'}</button></div>` : ''}
+  </div>`;
+}
+
+/* ---------- sheets ---------- */
+function recordSheet(date) {
+  openSheet(`<h3>기록 남기기</h3>
+    <label class="field"><span>날짜</span><input type="date" id="r-date" value="${date || todayStr()}"></label>
+    <label class="field"><span>한 줄</span><textarea id="r-text" maxlength="${MAX_TEXT}" placeholder="오늘 있었던 일을 한 줄로 남겨요"></textarea></label>
+    <label class="field"><span>사진</span><input type="file" id="r-photo" accept="image/*"><img class="preview" id="r-prev" hidden alt=""></label>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">저장</button></div>`, sh => {
+    let photo = null;
+    $('#x', sh).onclick = closeSheet;
+    $('#r-photo', sh).onchange = async e => {
+      const f = e.target.files[0]; if (!f) return;
+      try { photo = await compressImage(f); const p = $('#r-prev', sh); p.src = photo; p.hidden = false; } catch (er) { toast(er.message); }
+    };
+    $('#ok', sh).onclick = async () => {
+      const text = $('#r-text', sh).value.trim(), d = $('#r-date', sh).value || todayStr();
+      if (!text && !photo) return toast('한 줄이나 사진을 남겨 주세요.');
+      const ok = $('#ok', sh); ok.disabled = true; ok.textContent = '저장 중…';
+      try {
+        let photoId = null;
+        if (photo) { photoId = await save(() => B.add('photos', { data: photo, author: S.me, createdAt: Date.now() })); S.photos[photoId] = photo; }
+        await save(() => B.add('records', { date: d, text, photoId, author: S.me, createdAt: Date.now() }), '섬에 기록이 쌓였어요');
+        closeSheet(); S.sel = d;
+      } catch (e) { ok.disabled = false; ok.textContent = '저장'; }
+    };
+  });
+}
+function eventSheet(date) {
+  const pid = partnerId();
+  openSheet(`<h3>일정 추가</h3>
+    <label class="field"><span>날짜</span><input type="date" id="e-date" value="${date || todayStr()}"></label>
+    <label class="field"><span>일정</span><input id="e-title" maxlength="30" placeholder="예: 시험 보는 날"></label>
+    <div class="field"><span>누구의 일정인가요</span><div class="opts" id="e-who"><button type="button" class="opt" data-v="${S.me}" aria-pressed="true">${esc(nick(S.me))}</button>${pid ? `<button type="button" class="opt" data-v="${pid}" aria-pressed="false">${esc(nick(pid))}</button>` : ''}</div></div>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">추가</button></div>`, sh => {
+    wireOpts(sh); $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      const title = $('#e-title', sh).value.trim(); if (!title) return toast('일정 이름을 입력해 주세요.');
+      const d = $('#e-date', sh).value || todayStr();
+      $('#ok', sh).disabled = true;
+      try { await save(() => B.add('events', { date: d, title, owner: optVal(sh, 'e-who') || S.me, author: S.me, createdAt: Date.now() }), '일정을 추가했어요'); closeSheet(); S.sel = d; }
+      catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+function praiseSheet(date, eventId) {
+  const pid = partnerId(); if (!pid) return;
+  const ev = eventId ? S.events.find(e => e.id === eventId) : null;
+  openSheet(`<h3>${ev ? '응원 붙이기' : '칭찬 카드 보내기'}</h3>
+    ${ev ? `<p class="muted" style="margin-top:-6px">${esc(nick(ev.owner))}님의 일정 · ${esc(ev.title)}</p>` : ''}
+    <label class="field"><span>${esc(nick(pid))}님에게</span><textarea id="p-text" maxlength="${MAX_TEXT}" placeholder="${ev ? '고생했어! 끝나고 맛있는 거 먹자' : '오늘도 고마워'}"></textarea></label>
+    ${ev ? '' : `<label class="field"><span>붙일 날짜</span><input type="date" id="p-date" value="${date || todayStr()}"></label>`}
+    <div class="field"><span>언제 열어볼 수 있나요</span><div class="opts" id="p-when"><button type="button" class="opt" data-v="now" aria-pressed="true">바로 보내기</button><button type="button" class="opt" data-v="night" aria-pressed="false">오늘 밤 10시</button></div></div>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn alt" id="ok">보내기</button></div>`, sh => {
+    wireOpts(sh); $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      const text = $('#p-text', sh).value.trim(); if (!text) return toast('칭찬을 적어 주세요.');
+      const when = optVal(sh, 'p-when'); const revealAt = when === 'night' ? tonight10() : Date.now();
+      const d = ev ? ev.date : ($('#p-date', sh).value || todayStr());
+      $('#ok', sh).disabled = true;
+      try {
+        await save(() => B.add('praises', { from: S.me, to: pid, text, date: d, eventId: ev ? ev.id : null, revealAt, openedAt: null, createdAt: Date.now() }),
+          when === 'night' ? `${timeLabel(revealAt)}에 선물 상자가 열려요` : '칭찬을 보냈어요');
+        closeSheet();
+      } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+function placeSheet(p, mode) {
+  const status = p ? p.status : (mode || S.tastyTab);
+  const visited = status === 'visited';
+  openSheet(`<h3>${p ? '맛집 수정' : visited ? '맛집 기록' : '먹킷리스트 담기'}</h3>
+    <label class="field"><span>가게 이름 또는 음식</span><input id="pl-name" maxlength="30" value="${esc(p?.name || '')}" placeholder="${visited ? '예: 연남동 파스타집' : '예: 성수 마라탕'}"></label>
+    <div class="field"><span>카테고리</span><div class="opts" id="pl-cat">${CATS.map(c => `<button type="button" class="opt" data-v="${c}" aria-pressed="${(p?.cat || (S.cat !== '전체' ? S.cat : '한식')) === c}">${c}</button>`).join('')}</div></div>
+    ${visited ? `<div class="field"><span>우리의 별점</span>${starInput('pl-star', p?.rating || 0)}</div>
+      <label class="field"><span>한 줄 평</span><input id="pl-review" maxlength="60" value="${esc(p?.review || '')}" placeholder="예: 파스타 최고, 분위기 좋음"></label>
+      <label class="field"><span>방문한 날</span><input type="date" id="pl-date" value="${p?.visitedAt || todayStr()}"></label>`
+      : `<label class="field"><span>메모</span><input id="pl-memo" maxlength="60" value="${esc(p?.memo || '')}" placeholder="예: 웨이팅 있으니 평일에"></label>`}
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">저장</button></div>`, sh => {
+    wireOpts(sh); wireStars(sh); $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      const name = $('#pl-name', sh).value.trim(); if (!name) return toast('이름을 입력해 주세요.');
+      const data = { name, cat: optVal(sh, 'pl-cat') || '기타' };
+      if (visited) { data.rating = +$('#pl-star', sh).dataset.v || 0; data.review = $('#pl-review', sh).value.trim(); data.visitedAt = $('#pl-date', sh).value || todayStr(); }
+      else data.memo = $('#pl-memo', sh).value.trim();
+      $('#ok', sh).disabled = true;
+      try {
+        if (p) await save(() => B.update('places', p.id, data), '수정했어요');
+        else await save(() => B.add('places', { ...data, status, author: S.me, createdAt: Date.now() }), visited ? '맛집 도감에 기록했어요' : '먹킷리스트에 담았어요');
+        closeSheet();
+      } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+function visitSheet(p) {
+  openSheet(`<h3>${esc(p.name)} 다녀왔어요</h3>
+    <div class="field"><span>우리의 별점</span>${starInput('v-star', 0)}</div>
+    <label class="field"><span>한 줄 평</span><input id="v-review" maxlength="60" placeholder="어땠는지 한 줄로 남겨요"></label>
+    <label class="field"><span>방문한 날</span><input type="date" id="v-date" value="${todayStr()}"></label>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn alt" id="ok">도감에 기록</button></div>`, sh => {
+    wireStars(sh); $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      $('#ok', sh).disabled = true;
+      try {
+        await save(() => B.update('places', p.id, { status: 'visited', rating: +$('#v-star', sh).dataset.v || 0, review: $('#v-review', sh).value.trim(), visitedAt: $('#v-date', sh).value || todayStr() }), '맛집 도감으로 옮겼어요');
+        closeSheet(); S.tastyTab = 'visited'; render();
+      } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+function rouletteSheet() {
+  const pool = S.places.filter(p => p.status === 'wish' && (S.cat === '전체' || p.cat === S.cat));
+  if (!pool.length) return toast(S.cat === '전체' ? '먹킷리스트를 먼저 담아 주세요.' : `${S.cat} 먹킷리스트가 비어 있어요.`);
+  openSheet(`<h3>오늘 뭐 먹지?</h3><div class="wheel" id="wh"><b id="wn">${esc(pool[0].name)}</b></div><p class="muted" id="wm" style="text-align:center;min-height:22px"></p>
+    <div class="acts"><button class="btn ghost" id="again">다시 돌리기</button><button class="btn alt" id="x">결정!</button></div>`, sh => {
+    $('#x', sh).onclick = closeSheet;
+    const spin = () => {
+      const pick = Math.floor(Math.random() * pool.length); const wh = $('#wh', sh), wn = $('#wn', sh), wm = $('#wm', sh);
+      wh.classList.remove('done'); wm.textContent = '';
+      const finish = () => { const p = pool[pick]; wn.textContent = p.name; wh.classList.add('done'); wm.textContent = `${p.cat}${p.memo ? ' · ' + p.memo : ''}`; };
+      if (reduceMotion || pool.length === 1) return finish();
+      let i = 0, delay = 50; const steps = 18 + Math.floor(Math.random() * pool.length);
+      const tick = () => { if (!document.body.contains(wn)) return; if (i >= steps) return finish(); wn.textContent = pool[i % pool.length].name; i++; delay *= 1.12; setTimeout(tick, delay); };
+      tick();
+    };
+    $('#again', sh).onclick = spin; spin();
+  });
+}
+function settingsSheet() {
+  const c = S.couple; const solo = members().length < 2;
+  openSheet(`<h3>섬 설정</h3>
+    ${solo ? `<div class="card" style="margin-bottom:14px;background:#FFF5E1;border-color:#F2D48A"><div class="muted">연인에게 보낼 초대 코드</div>
+      <div class="row" style="justify-content:space-between;margin-top:4px"><b style="font-family:var(--display);font-weight:400;font-size:28px;letter-spacing:4px" id="s-code">${esc(c.inviteCode || '')}</b>
+      ${c.inviteCode ? '<button class="btn small" id="s-copy">복사</button>' : '<button class="btn small" id="s-newcode">코드 만들기</button>'}</div></div>` : ''}
+    <label class="field"><span>섬 이름</span><input id="s-name" maxlength="16" value="${esc(c.name || '')}"></label>
+    <label class="field"><span>내 닉네임</span><input id="s-nick" maxlength="12" value="${esc(c.nick?.[S.me] || '')}"></label>
+    <label class="field"><span>처음 만난 날</span><input type="date" id="s-since" value="${esc(c.since || '')}"></label>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">저장</button></div>
+    <div class="row" style="justify-content:space-between;margin-top:16px"><span class="muted">${esc(S.email || '')}</span><button class="link" data-act="logout">로그아웃</button></div>`, sh => {
+    $('#x', sh).onclick = closeSheet;
+    const cp = $('#s-copy', sh); if (cp) cp.onclick = async () => { try { await navigator.clipboard.writeText(c.inviteCode); toast('초대 코드를 복사했어요'); } catch (e) { toast('코드를 길게 눌러 복사해 주세요.'); } };
+    const nc = $('#s-newcode', sh); if (nc) nc.onclick = async () => { nc.disabled = true; try { const code = await makeInvite(S.iid); $('#s-code', sh).textContent = code; nc.remove(); } catch (e) { toast(errMsg(e)); nc.disabled = false; } };
+    $('#ok', sh).onclick = async () => {
+      const patch = { name: $('#s-name', sh).value.trim() || c.name, since: $('#s-since', sh).value || c.since };
+      const n = $('#s-nick', sh).value.trim(); if (n) patch.nick = { [S.me]: n };
+      $('#ok', sh).disabled = true;
+      try { await save(() => B.update('couple', 'main', patch), '저장했어요'); closeSheet(); } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+function confirmDelete(col, id) {
+  openSheet(`<h3>삭제할까요?</h3><p class="muted">삭제한 기록은 되돌릴 수 없어요.</p>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" style="background:#B23A48" id="ok">삭제</button></div>`, sh => {
+    $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      $('#ok', sh).disabled = true;
+      try {
+        if (col === 'records') { const r = S.records.find(x => x.id === id); if (r?.photoId) await save(() => B.remove('photos', r.photoId)); }
+        await save(() => B.remove(col, id), '삭제했어요'); closeSheet();
+      } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+async function openGift(btn, id) {
+  const p = S.praises.find(x => x.id === id); if (!p) return;
+  btn.classList.add('opening');
+  await new Promise(r => setTimeout(r, reduceMotion ? 0 : 550));
+  openSheet(`<h3>${esc(nick(p.from))}님의 칭찬 카드</h3><div class="note pink" style="--r:-1.5deg;font-size:24px;padding:18px">${esc(p.text)}<div class="meta">${dotDate(p.date)}${p.eventId ? ' · ' + esc(S.events.find(e => e.id === p.eventId)?.title || '') : ''}</div></div>
+    <div class="acts" style="margin-top:16px"><button class="btn alt" id="x">고마워!</button></div>`, sh => { $('#x', sh).onclick = closeSheet; });
+  try { await B.update('praises', id, { openedAt: Date.now() }); } catch (e) {}
+}
+
+/* ---------- gender, fart, annivs ---------- */
+const POO_SVG = `<svg width="44" height="44" viewBox="0 0 44 44" aria-hidden="true" style="flex:none"><circle cx="16" cy="22" r="9" fill="#A7774A" opacity=".55"/><circle cx="27" cy="18" r="10" fill="#8B5E3C" opacity=".6"/><circle cx="30" cy="28" r="8" fill="#A7774A" opacity=".55"/><path d="M14 10 q3 -3 0 -6 M22 8 q3 -3 0 -6 M30 9 q3 -3 0 -6" stroke="#7A5230" stroke-width="1.6" fill="none" stroke-linecap="round"/></svg>`;
+function maybeAskGender() {
+  if (S.phase !== 'app' || !isMember() || S.askedGender || $('#layer').innerHTML) return;
+  if (S.couple?.gender?.[S.me]) return;
+  S.askedGender = true;
+  openSheet(`<h3>내 캐릭터 고르기</h3>
+    <div class="field"><span>나는</span><div class="opts" id="g-pick"><button type="button" class="opt" data-v="f" aria-pressed="true">여자</button><button type="button" class="opt" data-v="m" aria-pressed="false">남자</button></div></div>
+    <div class="acts"><button class="btn" id="ok">저장</button></div>`, sh => {
+    wireOpts(sh);
+    $('#ok', sh).onclick = async () => {
+      $('#ok', sh).disabled = true;
+      try { await save(() => B.update('couple', 'main', { gender: { [S.me]: optVal(sh, 'g-pick') || 'f' } }), '캐릭터가 섬에 도착했어요'); closeSheet(); } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+async function sendFart(btn) {
+  btn.disabled = true;
+  try { await save(() => B.add('farts', { from: S.me, createdAt: Date.now() }), '뿌직! 똥방구 발사 완료'); } catch (e) { btn.disabled = false; }
+}
+function annivSheet() {
+  const list = [...(S.annivs || [])].sort((a, b) => (a.date || '').slice(5).localeCompare((b.date || '').slice(5)));
+  const auto = []; const t = new Date();
+  for (let i = 0; i <= 800 && auto.length < 3; i++) { const dd = new Date(t); dd.setDate(t.getDate() + i); const ds = ymd(dd); const sn = S.couple?.since; if (!sn) break;
+    const n = daysBetween(sn, ds) + 1; const [y, m, d] = ds.split('-'); const [sy, sm, sd] = sn.split('-');
+    if (n > 0 && n % 100 === 0) auto.push([ds, `${n}일`]); if (m === sm && d === sd && +y > +sy) auto.push([ds, `${y - sy}주년`]); }
+  openSheet(`<h3>기념일 관리</h3>
+    ${auto.length ? `<div class="sec-title" style="margin-top:0">다가오는 기념일</div><div class="card" style="margin-bottom:12px">${auto.map(([ds, nm]) => `<div class="line"><b style="min-width:70px">${esc(nm)}</b><p class="muted">${dotDate(ds)}</p></div>`).join('')}</div>` : ''}
+    <div class="sec-title" style="margin-top:0">우리가 정한 기념일</div>
+    <div class="card" style="margin-bottom:14px">${list.length ? list.map(a => `<div class="line"><b style="min-width:70px">${esc(a.name)}</b><p class="muted">${dotDate(a.date)}${a.yearly ? ' · 매년' : ''}</p><button class="link danger" data-act="anniv-del" data-id="${a.id}">삭제</button></div>`).join('') : '<div class="empty">아직 없어요</div>'}</div>
+    <label class="field"><span>기념일 이름</span><input id="an-name" maxlength="20" placeholder="예: 하늘 생일"></label>
+    <label class="field"><span>날짜</span><input id="an-date" type="date" value="${todayStr()}"></label>
+    <div class="field"><span>반복</span><div class="opts" id="an-rep"><button type="button" class="opt" data-v="y" aria-pressed="true">매년</button><button type="button" class="opt" data-v="n" aria-pressed="false">한 번만</button></div></div>
+    <div class="acts"><button class="btn ghost" id="x">닫기</button><button class="btn" id="ok">추가</button></div>`, sh => {
+    wireOpts(sh); $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      const name = $('#an-name', sh).value.trim(); const date = $('#an-date', sh).value;
+      if (!name || !date) return toast('이름과 날짜를 입력해 주세요.');
+      $('#ok', sh).disabled = true;
+      try { await save(() => B.add('annivs', { name, date, yearly: optVal(sh, 'an-rep') !== 'n', author: S.me, createdAt: Date.now() }), '기념일을 추가했어요'); annivSheet(); } catch (e) { $('#ok', sh).disabled = false; }
+    };
+  });
+}
+
+/* ---------- footprints ---------- */
+const GEO_URL = {
+  d3: 'https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js',
+  topo: 'https://cdn.jsdelivr.net/npm/topojson-client@3.1.0/dist/topojson-client.min.js',
+  world: 'https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json',
+  korea: 'https://cdn.jsdelivr.net/gh/southkorea/southkorea-maps@master/kostat/2018/json/skorea-provinces-2018-topo-simple.json'
+};
+const KO_NAMES = {"533":"아루바","004":"아프가니스탄","024":"앙골라","660":"앵귈라","248":"올란드 제도","008":"알바니아","020":"안도라","784":"아랍에미리트","032":"아르헨티나","051":"아르메니아","016":"아메리칸 사모아","010":"남극 대륙","260":"프랑스령 남방 지역","028":"앤티가 바부다","036":"오스트레일리아","040":"오스트리아","031":"아제르바이잔","108":"부룬디","056":"벨기에","204":"베냉","535":"네덜란드령 카리브","854":"부르키나파소","050":"방글라데시","100":"불가리아","048":"바레인","044":"바하마","070":"보스니아 헤르체고비나","652":"생바르텔레미","112":"벨라루스","084":"벨리즈","060":"버뮤다","068":"볼리비아","076":"브라질","052":"바베이도스","096":"브루나이","064":"부탄","074":"부베섬","072":"보츠와나","140":"중앙 아프리카 공화국","124":"캐나다","166":"코코스 제도","756":"스위스","152":"칠레","156":"중국","384":"코트디부아르","120":"카메룬","180":"콩고-킨샤사","178":"콩고-브라자빌","184":"쿡 제도","170":"콜롬비아","174":"코모로","132":"카보베르데","188":"코스타리카","192":"쿠바","531":"퀴라소","162":"크리스마스섬","136":"케이맨 제도","196":"키프로스","203":"체코","276":"독일","262":"지부티","212":"도미니카","208":"덴마크","214":"도미니카 공화국","012":"알제리","218":"에콰도르","818":"이집트","232":"에리트리아","732":"서사하라","724":"스페인","233":"에스토니아","231":"에티오피아","246":"핀란드","242":"피지","238":"포클랜드 제도","250":"프랑스","234":"페로 제도","583":"미크로네시아","266":"가봉","826":"영국","268":"조지아","831":"건지","288":"가나","292":"지브롤터","324":"기니","312":"과들루프","270":"감비아","624":"기니비사우","226":"적도 기니","300":"그리스","308":"그레나다","304":"그린란드","320":"과테말라","254":"프랑스령 기아나","316":"괌","328":"가이아나","344":"홍콩(중국 특별행정구)","334":"허드 맥도널드 제도","340":"온두라스","191":"크로아티아","332":"아이티","348":"헝가리","360":"인도네시아","833":"맨섬","356":"인도","086":"영국령 인도양 지역","372":"아일랜드","364":"이란","368":"이라크","352":"아이슬란드","376":"이스라엘","380":"이탈리아","388":"자메이카","832":"저지","400":"요르단","392":"일본","398":"카자흐스탄","404":"케냐","417":"키르기스스탄","116":"캄보디아","296":"키리바시","659":"세인트키츠 네비스","410":"대한민국","414":"쿠웨이트","418":"라오스","422":"레바논","430":"라이베리아","434":"리비아","662":"세인트루시아","438":"리히텐슈타인","144":"스리랑카","426":"레소토","440":"리투아니아","442":"룩셈부르크","428":"라트비아","446":"마카오(중국 특별행정구)","663":"생마르탱","504":"모로코","492":"모나코","498":"몰도바","450":"마다가스카르","462":"몰디브","484":"멕시코","584":"마셜 제도","807":"북마케도니아","466":"말리","470":"몰타","104":"미얀마","499":"몬테네그로","496":"몽골","580":"북마리아나제도","508":"모잠비크","478":"모리타니","500":"몬트세라트","474":"마르티니크","480":"모리셔스","454":"말라위","458":"말레이시아","175":"마요트","516":"나미비아","540":"뉴칼레도니아","562":"니제르","574":"노퍽섬","566":"나이지리아","558":"니카라과","570":"니우에","528":"네덜란드","578":"노르웨이","524":"네팔","520":"나우루","554":"뉴질랜드","512":"오만","586":"파키스탄","591":"파나마","612":"핏케언 제도","604":"페루","608":"필리핀","585":"팔라우","598":"파푸아뉴기니","616":"폴란드","630":"푸에르토리코","408":"북한","620":"포르투갈","600":"파라과이","275":"팔레스타인 지구","258":"프랑스령 폴리네시아","634":"카타르","638":"레위니옹","642":"루마니아","643":"러시아","646":"르완다","682":"사우디아라비아","729":"수단","686":"세네갈","702":"싱가포르","239":"사우스조지아 사우스샌드위치 제도","654":"세인트헬레나","744":"스발바르제도-얀마웬섬","090":"솔로몬 제도","694":"시에라리온","222":"엘살바도르","674":"산마리노","706":"소말리아","666":"생피에르 미클롱","688":"세르비아","728":"남수단","678":"상투메 프린시페","740":"수리남","703":"슬로바키아","705":"슬로베니아","752":"스웨덴","748":"에스와티니","534":"신트마르턴","690":"세이셸","760":"시리아","796":"터크스 케이커스 제도","148":"차드","768":"토고","764":"태국","762":"타지키스탄","772":"토켈라우","795":"투르크메니스탄","626":"동티모르","776":"통가","780":"트리니다드 토바고","788":"튀니지","792":"튀르키예","798":"투발루","158":"대만","834":"탄자니아","800":"우간다","804":"우크라이나","581":"미국령 해외 제도","858":"우루과이","840":"미국","860":"우즈베키스탄","336":"바티칸 시국","670":"세인트빈센트그레나딘","862":"베네수엘라","092":"영국령 버진아일랜드","850":"미국령 버진아일랜드","704":"베트남","548":"바누아투","876":"왈리스-푸투나 제도","882":"사모아","887":"예멘","710":"남아프리카","894":"잠비아","716":"짐바브웨","-99":""};
+const KR_SHORT = { '11': '서울', '21': '부산', '22': '대구', '23': '인천', '24': '광주', '25': '대전', '26': '울산', '29': '세종', '31': '경기', '32': '강원', '33': '충북', '34': '충남', '35': '전북', '36': '전남', '37': '경북', '38': '경남', '39': '제주' };
+const GEO = { state: 'idle', world: null, korea: null, maps: {} };
+const loadScript = src => new Promise((res, rej) => { const el = document.createElement('script'); el.src = src; el.onload = res; el.onerror = rej; document.head.appendChild(el); });
+async function loadGeo() {
+  if (GEO.state === 'loading' || GEO.state === 'ready') return;
+  GEO.state = 'loading';
+  try {
+    if (!window.d3) await loadScript(GEO_URL.d3);
+    if (!window.topojson) await loadScript(GEO_URL.topo);
+    const [w, k] = await Promise.all([fetch(GEO_URL.world).then(r => r.json()), fetch(GEO_URL.korea).then(r => r.json())]);
+    GEO.world = topojson.feature(w, w.objects.countries).features.filter(f => f.properties.name !== 'Antarctica')
+      .map(f => ({ f, key: 'W' + (f.id || f.properties.name.replace(/[^A-Za-z]/g, '')), name: KO_NAMES[f.id] || f.properties.name, kr: f.id === '410' }));
+    const ko = k.objects[Object.keys(k.objects)[0]];
+    GEO.korea = topojson.feature(k, ko).features.map(f => ({ f, key: 'K' + f.properties.code, name: f.properties.name, short: KR_SHORT[f.properties.code] || f.properties.name }));
+    GEO.state = 'ready';
+  } catch (e) { GEO.state = 'failed'; }
+  if (S.tab === 'footprints') render();
+}
+const regionList = sc => GEO[sc] || [];
+function regionName(key, fallback) { const r = [...regionList('world'), ...regionList('korea')].find(r => r.key === key); return r ? r.name : (fallback || ''); }
+function regionStats(sc) {
+  const m = {};
+  S.trips.filter(t => t.scope === sc).forEach(t => { (m[t.region] ||= { folders: 0, photos: 0, name: t.regionName }).folders++; });
+  S.tripPhotos.filter(p => p.scope === sc).forEach(p => { (m[p.region] ||= { folders: 0, photos: 0 }).photos++; });
+  return m;
+}
+const coverFor = key => S.covers.find(c => c.id === key)?.photoId || null;
+const blobWait = {}, blobMiss = new Set();
+async function fetchBlob(id) {
+  if (!id || S.photos[id] || blobMiss.has(id)) return;
+  if (blobWait[id]) return blobWait[id];
+  blobWait[id] = B.get('photos', id).then(d => { if (d?.data) S.photos[id] = d.data; else blobMiss.add(id); }).catch(() => blobMiss.add(id)).finally(() => delete blobWait[id]);
+  return blobWait[id];
+}
+const EXTRA_PLACES = ['702', '344', '446', '470', '462', '492', '048', '480', '316', '580', '520', '585', '336', '674', '020', '438', '442', '238', '060', '044'];
+function allPlaces() {
+  const w = regionList('world').map(r => ({ key: r.key, name: r.name, scope: 'world', kr: r.kr }));
+  const have = new Set(w.map(r => r.key));
+  EXTRA_PLACES.forEach(id => { const k = 'W' + id; if (!have.has(k) && KO_NAMES[id]) w.push({ key: k, name: KO_NAMES[id], scope: 'world' }); });
+  return w.sort((x, y) => x.name.localeCompare(y.name, 'ko'));
+}
+function placeName(key, fb) {
+  if (key && key[0] === 'W' && KO_NAMES[key.slice(1)]) return KO_NAMES[key.slice(1)];
+  return regionName(key, fb);
+}
+function buildMap(sc, W, H) {
+  const list = regionList(sc);
+  const fc = { type: 'FeatureCollection', features: list.map(r => r.f) };
+  let proj, MW = W;
+  if (sc === 'world') { MW = Math.max(W, Math.round(H * 2.3)); proj = d3.geoEquirectangular().fitExtent([[0, 8], [MW, H - 8]], fc); }
+  else proj = d3.geoMercator().fitExtent([[14, 56], [W - 14, H - 56]], fc);
+  const path = d3.geoPath(proj);
+  const svg = d3.create('svg').attr('width', W).attr('height', H).attr('viewBox', `0 0 ${W} ${H}`).attr('role', 'img').attr('aria-label', sc === 'world' ? '세계 지도' : '대한민국 지도');
+  const defs = svg.append('defs'); const g = svg.append('g');
+  g.selectAll('path').data(list).join('path').attr('class', 'rg').attr('d', r => path(r.f)).attr('data-key', r => r.key)
+    .on('click', (ev, r) => selectRegion(sc, r));
+  if (sc === 'korea') {
+    g.selectAll('text').data(list).join('text').attr('class', 'rl').attr('x', r => path.centroid(r.f)[0]).attr('y', r => path.centroid(r.f)[1] + 4)
+      .attr('text-anchor', 'middle').attr('font-size', r => ['11', '29', '24', '25', '26', '22', '21', '23'].includes(r.key.slice(1)) ? 10 : 13)
+      .attr('fill', '#203038').attr('stroke', '#FFFCF6').attr('stroke-width', 3).attr('paint-order', 'stroke').attr('pointer-events', 'none').attr('font-family', 'Jua, sans-serif').text(r => r.short);
+  }
+  const zoom = d3.zoom().extent([[0, 0], [W, H]]).scaleExtent([1, sc === 'world' ? 10 : 6]).translateExtent([[0, 0], [MW, H]])
+    .on('zoom', ev => g.attr('transform', ev.transform));
+  svg.call(zoom).on('dblclick.zoom', null);
+  if (sc === 'world') { const k = proj([127.5, 36])[0]; svg.call(zoom.transform, d3.zoomIdentity.translate(Math.min(0, Math.max(W - MW, W * 0.62 - k)), 0)); }
+  return (GEO.maps[sc] = { node: svg.node(), svg, g, defs, zoom, W, H });
+}
+function ensurePattern(m, key, el, data) {
+  const id = 'pt-' + key; let pt = m.defs.select('#' + id);
+  const bb = el.getBBox();
+  if (pt.empty()) { pt = m.defs.append('pattern').attr('id', id).attr('patternUnits', 'userSpaceOnUse'); pt.append('image').attr('preserveAspectRatio', 'xMidYMid slice'); }
+  pt.attr('x', bb.x).attr('y', bb.y).attr('width', bb.width).attr('height', bb.height);
+  const im = pt.select('image');
+  if (im.attr('href') !== data) im.attr('href', data);
+  im.attr('x', 0).attr('y', 0).attr('width', bb.width).attr('height', bb.height);
+}
+function updateFills(sc) {
+  const m = GEO.maps[sc]; if (!m) return; const rs = regionStats(sc);
+  m.g.selectAll('path.rg').each(function (r) {
+    const cid = coverFor(r.key);
+    if (cid && S.photos[cid]) { ensurePattern(m, r.key, this, S.photos[cid]); this.setAttribute('fill', `url(#pt-${r.key})`); this.classList.add('pic'); }
+    else {
+      this.classList.remove('pic');
+      this.setAttribute('fill', rs[r.key] ? '#F4B6C6' : (sc === 'world' ? '#E9E1CC' : '#F1E8D3'));
+      if (cid && !blobMiss.has(cid)) fetchBlob(cid).then(() => { if (S.photos[cid]) updateFills(sc); });
+    }
+  });
+  const firstText = m.g.select('text').node();
+  m.g.selectAll('path.rg.pic').each(function () { this.parentNode.insertBefore(this, firstText); });
+}
+function mountMap() {
+  if (GEO.state === 'idle') { loadGeo(); return; }
+  const slot = $('#fp-slot'); const box = $('#fp-box'); if (!slot || !box || GEO.state !== 'ready') return;
+  const W = Math.round(box.clientWidth), H = Math.round(box.clientHeight); if (W < 50 || H < 50) return;
+  const sc = S.fp.scope; let m = GEO.maps[sc];
+  if (!m || Math.abs(m.W - W) > 4 || Math.abs(m.H - H) > 4) m = buildMap(sc, W, H);
+  slot.replaceWith(m.node); updateFills(sc);
+}
+function selectRegion(sc, r) {
+  if (sc === 'world' && r.kr) { S.fp.scope = 'korea'; render(); return; }
+  openStack(sc, r.key);
+}
+function folderCover(t) {
+  if (t.coverId) return t.coverId;
+  const first = S.tripPhotos.filter(p => p.folderId === t.id).sort((a, b) => a.createdAt - b.createdAt)[0];
+  return first ? first.blobId : null;
+}
+function footprintsHtml() {
+  const sc = S.fp.scope; const n = Object.keys(regionStats(sc)).length;
+  const mapBox = GEO.state === 'ready' ? `<div id="fp-slot"></div>`
+    : GEO.state === 'failed' ? `<div class="empty" style="padding-top:40%">지도를 불러오지 못했어요.<br><button class="btn small" data-act="geo-retry" style="margin-top:10px">다시 시도</button></div>`
+    : `<div class="empty" style="padding-top:40%">지도를 펼치는 중…</div>`;
+  return `<div class="fp-full" id="fp-box">${mapBox}
+    <div class="fp-top"><div class="seg" role="group"><button data-act="fp-scope" data-v="world" aria-pressed="${sc === 'world'}">세계</button><button data-act="fp-scope" data-v="korea" aria-pressed="${sc === 'korea'}">한국</button></div></div>
+    <div class="fp-bottom">
+      <button class="fp-pill" data-act="fp-list">${sc === 'world' ? '다녀온 나라' : '다녀온 지역'} ${n}곳 · 목록</button>
+      ${GEO.state === 'ready' ? `<div class="fp-zoom"><button data-act="fp-zoom" data-z="1.6" aria-label="확대">+</button><button data-act="fp-zoom" data-z="0.625" aria-label="축소">−</button></div>` : ''}
+    </div></div>`;
+}
+function listSheet() {
+  const sc = S.fp.scope; const rs = regionStats(sc);
+  const all = sc === 'world' ? allPlaces().filter(p => !p.kr) : regionList('korea').map(r => ({ key: r.key, name: r.name, scope: 'korea' }));
+  const row = p => `<button class="lrow" data-act="list-pick" data-key="${esc(p.key)}" data-sc="${sc}"><span>${esc(p.name)}</span><span class="muted">${rs[p.key] ? `사진 ${rs[p.key].photos}장` : ''}</span></button>`;
+  const visited = all.filter(p => rs[p.key]);
+  openSheet(`<h3>${sc === 'world' ? '나라 목록' : '지역 목록'}</h3>
+    ${visited.length ? `<div class="sec-title" style="margin-top:0">다녀온 곳</div><div class="card" style="padding:4px 12px;margin-bottom:12px">${visited.map(row).join('')}</div>` : ''}
+    ${sc === 'world' ? `<label class="field"><span>나라 찾기</span><input id="ls-q" placeholder="예: 싱가포르"></label>` : ''}
+    <div class="card" style="padding:4px 12px" id="ls-all">${all.map(row).join('')}</div>`, sh => {
+    const q = $('#ls-q', sh);
+    if (q) q.oninput = () => { const v = q.value.trim(); sh.querySelectorAll('#ls-all .lrow').forEach(b => { b.hidden = v && !b.textContent.includes(v); }); };
+  });
+}
+
+/* polaroid stack */
+function stackPhotos() {
+  const st = S.stack; if (!st) return [];
+  return S.tripPhotos.filter(p => p.region === st.key && (st.city === 'all' || p.folderId === st.city)).sort((a, b) => a.createdAt - b.createdAt);
+}
+function openStack(sc, key) {
+  S.stack = { scope: sc, key, city: 'all', idx: 0 };
+  $('#stacklayer').innerHTML = `<div class="stackscrim" id="stk"></div>`;
+  renderStack();
+}
+function closeStack() { S.stack = null; $('#stacklayer').innerHTML = ''; }
+function refreshViewer() { if (S.stack && $('#stk')) renderStack(); }
+function renderStack() {
+  const box = $('#stk'); const st = S.stack; if (!box || !st) return;
+  const folders = S.trips.filter(t => t.region === st.key).sort((a, b) => a.createdAt - b.createdAt);
+  if (st.city !== 'all' && !folders.some(f => f.id === st.city)) st.city = 'all';
+  const ph = stackPhotos(); if (st.idx >= ph.length) st.idx = Math.max(0, ph.length - 1);
+  const w = canWrite(); const cur = ph[st.idx]; const cov = coverFor(st.key);
+  const name = placeName(st.key, folders[0]?.regionName);
+  const fname = id => folders.find(f => f.id === id)?.name || '';
+  const card = (p, depth) => `<div class="pcard ${depth ? 'back' : 'top'}" style="--d:${depth};--r:${depth ? (depth % 2 ? 6 : -5) : rot(st.idx) * 0.5}deg" ${depth ? '' : 'id="pc-top"'}>
+      <div class="ph"><img data-photo="${esc(p.blobId)}" alt="${esc(p.caption || '여행 사진')}"></div>
+      <p class="cap ${p.caption ? '' : 'none'}">${esc(p.caption || (depth ? '' : '멘트를 남겨 보세요'))}</p>
+      ${depth ? '' : `<div class="pmeta">${st.city === 'all' && fname(p.folderId) ? `<span class="tag">${esc(fname(p.folderId))}</span>` : ''}${cov === p.blobId ? '<span class="coverbadge">대표</span>' : ''}</div>`}
+    </div>`;
+  const deck = ph.length ? [2, 1, 0].filter(d => d < ph.length).map(d => card(ph[(st.idx + d) % ph.length], d)).join('')
+    : `<div class="pcard top empty-card"><div class="ph"><span>${w ? '첫 사진을 올려 보세요' : '아직 사진이 없어요'}</span></div><p class="cap none"></p></div>`;
+  const addBtn = st.city === 'all'
+    ? `<button class="sbtn" data-act="stk-add">사진 추가</button>`
+    : `<label class="sbtn">사진 추가<input type="file" accept="image/*" multiple hidden id="stk-file"></label>`;
+  box.innerHTML = `<div class="stackbox">
+    <div class="stk-head"><h3>${esc(name)}</h3><button class="stk-x" data-act="stk-close" aria-label="닫기">✕</button></div>
+    <div class="stk-chips"><button class="schip" data-act="stk-city" data-v="all" aria-pressed="${st.city === 'all'}">전체</button>${folders.map(f => `<button class="schip" data-act="stk-city" data-v="${f.id}" aria-pressed="${st.city === f.id}">${esc(f.name)}</button>`).join('')}${w ? '<button class="schip add" data-act="stk-newcity">+ 도시</button>' : ''}</div>
+    <div class="deck" id="deck">${deck}</div>
+    <div class="stk-count">${ph.length ? `${st.idx + 1} / ${ph.length}` : ''}</div>
+    ${w ? `<div class="stk-acts">${addBtn}${cur ? `<button class="sbtn" data-act="stk-cap">멘트</button><button class="sbtn" data-act="cover" data-id="${cur.id}" ${cov === cur.blobId ? 'disabled' : ''}>대표 사진</button><button class="sbtn" data-act="tp-del" data-id="${cur.id}">삭제</button>` : ''}</div>
+      ${st.city !== 'all' ? `<div style="text-align:center;margin-top:6px"><button class="link" style="color:#fff" data-act="stk-delcity">이 도시 폴더 삭제</button></div>` : ''}` : ''}
+  </div>`;
+  const fi = $('#stk-file', box); if (fi) fi.onchange = e => { const f = S.trips.find(t => t.id === st.city); if (f) uploadTripPhotos(f, [...e.target.files]); };
+  wireSwipe(ph.length);
+  loadPhotos(box);
+}
+function wireSwipe(n) {
+  const el = $('#pc-top'); if (!el || n < 2) return;
+  let sx = 0, sy = 0, dx = 0, drag = false, id = null;
+  el.addEventListener('pointerdown', e => { drag = true; id = e.pointerId; sx = e.clientX; sy = e.clientY; dx = 0; el.setPointerCapture(id); el.style.transition = 'none'; });
+  el.addEventListener('pointermove', e => { if (!drag) return; dx = e.clientX - sx; el.style.transform = `translate(${dx}px, ${(e.clientY - sy) * 0.15}px) rotate(${dx / 14}deg)`; });
+  const end = () => {
+    if (!drag) return; drag = false;
+    el.style.transition = 'transform .28s ease, opacity .28s ease';
+    if (Math.abs(dx) > 70) {
+      el.style.transform = `translate(${dx > 0 ? 420 : -420}px, 30px) rotate(${dx > 0 ? 24 : -24}deg)`; el.style.opacity = '0';
+      setTimeout(() => { if (!S.stack) return; S.stack.idx = (S.stack.idx + (dx < 0 ? 1 : -1) + n) % n; renderStack(); }, 230);
+    } else el.style.transform = '';
+  };
+  el.addEventListener('pointerup', end); el.addEventListener('pointercancel', end);
+}
+function cityPickSheet() {
+  const st = S.stack; const folders = S.trips.filter(t => t.region === st.key);
+  openSheet(`<h3>어느 도시에 넣을까요?</h3>
+    <div class="stack" style="gap:8px">${folders.map(f => `<label class="lrow" style="cursor:pointer"><span>${esc(f.name)}</span><span class="muted">사진 고르기</span><input type="file" accept="image/*" multiple hidden data-fid="${f.id}"></label>`).join('')}</div>
+    <label class="field" style="margin-top:14px"><span>새 도시</span><input id="cp-new" maxlength="20" placeholder="${st.scope === 'korea' ? '예: 해운대' : '예: 오사카'}"></label>
+    <label class="btn block" style="cursor:pointer" id="cp-newbtn">새 도시 만들고 사진 고르기<input type="file" accept="image/*" multiple hidden id="cp-newfile"></label>`, sh => {
+    sh.querySelectorAll('input[data-fid]').forEach(inp => inp.onchange = e => { const f = S.trips.find(t => t.id === inp.dataset.fid); closeSheet(); if (f) { S.stack.city = f.id; renderStack(); uploadTripPhotos(f, [...e.target.files]); } });
+    $('#cp-newbtn', sh).addEventListener('click', e => { if (!$('#cp-new', sh).value.trim()) { e.preventDefault(); toast('도시 이름을 입력해 주세요.'); } });
+    $('#cp-newfile', sh).onchange = async e => {
+      const name = $('#cp-new', sh).value.trim(); const files = [...e.target.files]; closeSheet();
+      const f = await createFolder(st.scope, st.key, name); if (f) { S.stack.city = f.id; renderStack(); uploadTripPhotos(f, files); }
+    };
+  });
+}
+async function createFolder(sc, key, name) {
+  const doc = { scope: sc, region: key, regionName: placeName(key), name, coverId: null, author: S.me, createdAt: Date.now() };
+  try { const id = await save(() => B.add('trips', doc)); return { id, ...doc }; } catch (e) { return null; }
+}
+function newCitySheet() {
+  const st = S.stack;
+  openSheet(`<h3>${esc(placeName(st.key))} · 도시 폴더 만들기</h3>
+    <label class="field"><span>도시 이름</span><input id="nf-name" maxlength="20" placeholder="${st.scope === 'korea' ? '예: 해운대' : '예: 오사카'}"></label>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">만들기</button></div>`, sh => {
+    $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => {
+      const name = $('#nf-name', sh).value.trim(); if (!name) return toast('도시 이름을 입력해 주세요.');
+      $('#ok', sh).disabled = true;
+      const f = await createFolder(st.scope, st.key, name);
+      if (f) { closeSheet(); if (S.stack) { S.stack.city = f.id; S.stack.idx = 0; renderStack(); } } else $('#ok', sh).disabled = false;
+    };
+  });
+}
+function captionSheet() {
+  const p = stackPhotos()[S.stack.idx]; if (!p) return;
+  openSheet(`<h3>멘트 남기기</h3>
+    <label class="field"><span>사진 아래에 보일 한 줄</span><textarea id="cp-text" maxlength="80" style="font-family:var(--hand);font-size:20px">${esc(p.caption || '')}</textarea></label>
+    <div class="acts"><button class="btn ghost" id="x">취소</button><button class="btn" id="ok">저장</button></div>`, sh => {
+    $('#x', sh).onclick = closeSheet;
+    $('#ok', sh).onclick = async () => { $('#ok', sh).disabled = true; try { await save(() => B.update('tripPhotos', p.id, { caption: $('#cp-text', sh).value.trim() }), '멘트를 남겼어요'); closeSheet(); } catch (e) { $('#ok', sh).disabled = false; } };
+  });
+}
+async function uploadTripPhotos(f, files) {
+  if (!files.length) return;
+  toast(`사진 ${files.length}장을 올리는 중…`);
+  let first = null;
+  for (let i = 0; i < files.length; i++) {
+    try {
+      const data = await compressImage(files[i]);
+      const blobId = await save(() => B.add('photos', { data, author: S.me, createdAt: Date.now() }));
+      S.photos[blobId] = data; first ||= blobId;
+      await save(() => B.add('tripPhotos', { folderId: f.id, scope: f.scope, region: f.region, blobId, caption: '', author: S.me, createdAt: Date.now() + i }));
+    } catch (e) { break; }
+  }
+  if (first && !coverFor(f.region)) { try { await B.set('covers', f.region, { photoId: first, scope: f.scope, updatedAt: Date.now() }); } catch (e) {} }
+  toast('사진을 올렸어요');
+}
+async function setCover(pid) {
+  const p = S.tripPhotos.find(x => x.id === pid); const f = p && S.trips.find(t => t.id === p.folderId); if (!f) return;
+  try {
+    await save(() => B.update('trips', f.id, { coverId: p.blobId }));
+    await save(() => B.set('covers', f.region, { photoId: p.blobId, scope: f.scope, updatedAt: Date.now() }), '대표 사진으로 정했어요');
+  } catch (e) {}
+}
+async function fixCovers(region, removedBlobs) {
+  const c = coverFor(region); if (!c || !removedBlobs.includes(c)) return;
+  const next = S.tripPhotos.find(p => p.region === region && !removedBlobs.includes(p.blobId));
+  try { if (next) await B.set('covers', region, { photoId: next.blobId, scope: next.scope, updatedAt: Date.now() }); else await B.remove('covers', region); } catch (e) {}
+}
+async function deleteTripPhoto(pid) {
+  const p = S.tripPhotos.find(x => x.id === pid); if (!p) return; const f = S.trips.find(t => t.id === p.folderId);
+  try {
+    await save(() => B.remove('tripPhotos', p.id)); await B.remove('photos', p.blobId).catch(() => {});
+    if (f && f.coverId === p.blobId) await B.update('trips', f.id, { coverId: null }).catch(() => {});
+    await fixCovers(p.region, [p.blobId]); toast('사진을 지웠어요');
+  } catch (e) {}
+}
+async function deleteFolder(fid) {
+  const f = S.trips.find(t => t.id === fid); if (!f) return;
+  const ph = S.tripPhotos.filter(p => p.folderId === fid);
+  try {
+    for (const p of ph) { await B.remove('tripPhotos', p.id).catch(() => {}); await B.remove('photos', p.blobId).catch(() => {}); }
+    await fixCovers(f.region, ph.map(p => p.blobId));
+    await save(() => B.remove('trips', fid), '폴더를 지웠어요'); if (S.stack) { S.stack.city = 'all'; S.stack.idx = 0; renderStack(); }
+  } catch (e) {}
+}
+function armed(el, label) {
+  if (el.dataset.armed === '1') return true;
+  el.dataset.armed = '1'; const old = el.textContent; el.textContent = label;
+  setTimeout(() => { el.dataset.armed = ''; el.textContent = old; }, 3000);
+  return false;
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-act]'); if (!el || el.disabled) return;
+  const a = el.dataset.act;
+  if (a === 'record') recordSheet(el.dataset.date);
+  else if (a === 'event') eventSheet(el.dataset.date);
+  else if (a === 'praise') praiseSheet(el.dataset.date, el.dataset.event);
+  else if (a === 'open-gift') openGift(el, el.dataset.id);
+  else if (a === 'sel') { S.sel = el.dataset.date; const d = parseYmd(S.sel); if (d.getMonth() !== S.cal.m) S.cal = { y: d.getFullYear(), m: d.getMonth() }; render(); }
+  else if (a === 'mon') { let { y, m } = S.cal; m += +el.dataset.d; if (m < 0) { m = 11; y--; } if (m > 11) { m = 0; y++; } S.cal = { y, m }; render(); }
+  else if (a === 'ttab') { S.tastyTab = el.dataset.v; render(); }
+  else if (a === 'cat') { S.cat = el.dataset.v; render(); }
+  else if (a === 'roulette') rouletteSheet();
+  else if (a === 'add-place') placeSheet(null);
+  else if (a === 'edit-place') placeSheet(S.places.find(p => p.id === el.dataset.id));
+  else if (a === 'visit') visitSheet(S.places.find(p => p.id === el.dataset.id));
+  else if (a === 'del') confirmDelete(el.dataset.col, el.dataset.id);
+  else if (a === 'auth-mode') { S.authMode = S.authMode === 'join' ? 'login' : 'join'; render(); }
+  else if (a === 'auth-reset') resetPassword();
+  else if (a === 'setup-mode') { S.setupMode = el.dataset.v; render(); }
+  else if (a === 'logout') { closeSheet(); F.signOut(auth); }
+  else if (a === 'reload') location.reload();
+  else if (a === 'fart') sendFart(el);
+  else if (a === 'annivs') annivSheet();
+  else if (a === 'anniv-del') { if (armed(el, '한 번 더')) B.remove('annivs', el.dataset.id).then(() => annivSheet()).catch(er => toast(errMsg(er))); }
+  else if (a === 'fp-scope') { S.fp.scope = el.dataset.v; render(); }
+  else if (a === 'fp-list') listSheet();
+  else if (a === 'list-pick') { closeSheet(); if (el.dataset.key === 'W410') { S.fp.scope = 'korea'; render(); } else openStack(el.dataset.sc, el.dataset.key); }
+  else if (a === 'fp-zoom') { const m = GEO.maps[S.fp.scope]; if (m) m.svg.transition().duration(250).call(m.zoom.scaleBy, +el.dataset.z); }
+  else if (a === 'geo-retry') { GEO.state = 'idle'; render(); }
+  else if (a === 'stk-close') closeStack();
+  else if (a === 'stk-city') { S.stack.city = el.dataset.v; S.stack.idx = 0; renderStack(); }
+  else if (a === 'stk-newcity') newCitySheet();
+  else if (a === 'stk-add') { if (S.trips.some(t => t.region === S.stack.key)) cityPickSheet(); else cityPickSheet(); }
+  else if (a === 'stk-cap') captionSheet();
+  else if (a === 'stk-delcity') { if (armed(el, '한 번 더 누르면 폴더와 사진이 모두 지워져요')) deleteFolder(S.stack.city); }
+  else if (a === 'cover') setCover(el.dataset.id);
+  else if (a === 'tp-del') { if (armed(el, '한 번 더')) deleteTripPhoto(el.dataset.id); }
+});
+$('#settingsBtn').addEventListener('click', settingsSheet);
+['gesturestart', 'gesturechange', 'gestureend'].forEach(ev => document.addEventListener(ev, e => e.preventDefault(), { passive: false }));
+document.addEventListener('touchmove', e => { if (e.touches && e.touches.length > 1 && !e.target.closest('.fp-map')) e.preventDefault(); }, { passive: false });
+const TABS = ['island', 'calendar', 'footprints', 'tasty'];
+function route() { const h = location.hash.slice(1); S.tab = TABS.includes(h) ? h : 'island'; $('#main').scrollTop = 0; render(); }
+window.addEventListener('hashchange', route);
+let lastGiftKey = '';
+setInterval(() => { const k = gifts().map(g => g.id).join(); if (k !== lastGiftKey) { lastGiftKey = k; if (!$('#layer').innerHTML) render(); } }, 30000);
+let rz; window.addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => { if (S.tab === 'island') startIsland(); if (S.tab === 'footprints') render(); }, 150); });
+
+/* ---------- boot ---------- */
+const FB_CONFIG = {
+  apiKey: "AIzaSyBjiILaw2P1DO2XVr03k-O8EATHvT4WLVA",
+  authDomain: "gyurongisland.firebaseapp.com",
+  projectId: "gyurongisland",
+  storageBucket: "gyurongisland.firebasestorage.app",
+  messagingSenderId: "1063237506934",
+  appId: "1:1063237506934:web:b0d40ce1b305c4403c0c57"
+};
+const FB_URL = 'https://www.gstatic.com/firebasejs/10.12.2/';
+let F = null, auth = null, db = null, unsubs = [], loadTimer = 0;
+function resetData() {
+  unsubs.forEach(f => { try { f(); } catch (e) {} }); unsubs = [];
+  clearTimeout(loadTimer);
+  Object.assign(S, { couple: null, coupleLoaded: false, records: [], praises: [], events: [], places: [], farts: [], trips: [], tripPhotos: [], covers: [], annivs: [], photos: {}, iid: null, offline: false, ready: false, askedGender: false });
+  B = null;
+}
+function enterIsland(iid) {
+  resetData();
+  S.iid = iid; B = fbBackend(F, db, iid); S.phase = 'app'; render();
+  loadTimer = setTimeout(() => { if (!S.ready) { S.offline = true; render(); } }, 10000);
+  const onErr = e => { if (e?.code === 'permission-denied') { S.couple = null; S.coupleLoaded = true; } else S.offline = true; render(); };
+  unsubs.push(B.listenDoc('couple', 'main', (c, meta) => {
+    S.couple = c; S.coupleLoaded = true;
+    if (!meta.fromCache) { S.ready = true; S.offline = false; clearTimeout(loadTimer); }
+    render();
+  }, onErr));
+  ['records', 'praises', 'events', 'places', 'farts', 'trips', 'tripPhotos', 'covers', 'annivs'].forEach(col => unsubs.push(B.listen(col, docs => { S[col] = docs; render(); refreshViewer(); }, onErr)));
+}
+async function boot() {
+  S.phase = 'loading'; S.authMode = 'login'; S.setupMode = 'create';
+  route();
+  try {
+    const [appM, authM, fsM] = await Promise.all([import(FB_URL + 'firebase-app.js'), import(FB_URL + 'firebase-auth.js'), import(FB_URL + 'firebase-firestore.js')]);
+    F = { ...authM, ...fsM };
+    const app = appM.initializeApp(FB_CONFIG);
+    auth = authM.getAuth(app); db = fsM.getFirestore(app);
+  } catch (e) { S.phase = 'error'; render(); return; }
+  F.onAuthStateChanged(auth, async u => {
+    resetData();
+    if (!u) { S.me = null; S.email = ''; S.phase = 'auth'; render(); return; }
+    S.me = u.uid; S.email = u.email || ''; S.phase = 'loading'; render();
+    try {
+      const us = await F.getDoc(F.doc(db, 'users', u.uid));
+      const iid = us.exists() ? us.data().islandId : null;
+      if (iid) enterIsland(iid); else { S.phase = 'setup'; render(); }
+    } catch (e) { S.phase = 'error'; render(); }
+  });
+}
+boot();
+})();
+</script>
+</body>
+</html>
